@@ -22,9 +22,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include <dirent.h>
 
 #include "ls.h"
+#include "general.h"
 
 void list (const char *dir_path, int flags);
 void help (const char *progname);
@@ -76,23 +78,37 @@ void list (const char *dir_path, int flags)
 		exit(EXIT_FAILURE);
 	}
 
+	char files[200][256];
 	struct dirent *dp;
-	int nlisted_in_line = 0;
+	int nfinished = 0;
 	while ((dp = readdir(dir)) != NULL) {
-		if (!(flags & LIST_ALL) && dp->d_name[0] == '.') {
+		if ((flags & LIST_ALL) != LIST_ALL && dp->d_name[0] == '.') {
 			/* Do nothing */
 		} else {
-			if (nlisted_in_line < FILES_PER_LINE) {
-				printf("%s\t", dp->d_name);
-				nlisted_in_line += 1;
-			} else {
-				printf("\n%s\t", dp->d_name);
-				nlisted_in_line = 1;
-			}
+			strcpy(files[nfinished], dp->d_name);
+			nfinished += 1;
 		}
 	}
 
-	printf("\n");
+	int i = 0;
+	while (i < nfinished) {
+		struct stat *statbuf = malloc(sizeof(struct stat));
+		int ret = stat(files[i], statbuf);
+		if (ret == -1) {
+			perror("");
+			exit(EXIT_FAILURE);
+		}
+		
+		if ((statbuf->st_mode & S_IFMT) == S_IFDIR
+		    && (flags & LIST_COLORED) == LIST_COLORED) {
+			printf(B_BLUE "%s\n" RESET, files[i]);
+		} else {
+			printf("%s\n", files[i]);
+		}
+
+		i += 1;
+		free(statbuf);
+	}
 }
 
 void help (const char *progname)
