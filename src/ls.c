@@ -25,6 +25,7 @@
 #include <dirent.h>
 
 #include "ls.h"
+#include "general.h"
 
 void list (const char *dir_path, int flags);
 void help (const char *progname);
