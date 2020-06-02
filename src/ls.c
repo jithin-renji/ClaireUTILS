@@ -24,31 +24,28 @@
 #include <unistd.h>
 #include <dirent.h>
 
-#define FILES_PER_LINE		3
+#include "ls.h"
 
-void list (const char *dir_path, int should_list_long,
-	   int should_list_all, int should_list_colored);
+void list (const char *dir_path, int flags);
 void help (const char *progname);
 
 int main (int argc, char **argv)
 {
-	int list_long = 0;
-	int list_all = 0;
-	int list_colored = 0;
-
+	int flags;
 	int opt;
+
 	while ((opt = getopt(argc, argv, "laCH")) != -1) {
 		switch (opt) {
 		case 'l':
-			list_long = 1;
+			flags |= LIST_LONG;
 			break;
 
 		case 'a':
-			list_all = 1;
+			flags |= LIST_ALL;
 			break;
 
 		case 'C':
-			list_colored = 1;
+			flags |= LIST_COLORED;
 			break;
 
 		case 'H':
@@ -64,14 +61,13 @@ int main (int argc, char **argv)
 	}
 
 	if (argv[optind] == NULL) {
-		list(".", list_long, list_all, list_colored);
+		list(".", flags);
 	} else {
-		list(argv[optind], list_long, list_all, list_colored);
+		list(argv[optind], flags);
 	}
 }
 
-void list (const char *dir_path, int should_list_long,
-	   int should_list_all, int should_list_colored)
+void list (const char *dir_path, int flags)
 {
 	DIR *dir = opendir(dir_path);
 
@@ -83,7 +79,7 @@ void list (const char *dir_path, int should_list_long,
 	struct dirent *dp;
 	int nlisted_in_line = 0;
 	while ((dp = readdir(dir)) != NULL) {
-		if (!should_list_all && dp->d_name[0] == '.') {
+		if (!(flags & LIST_ALL) && dp->d_name[0] == '.') {
 			/* Do nothing */
 		} else {
 			if (nlisted_in_line < FILES_PER_LINE) {
