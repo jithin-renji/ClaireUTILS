@@ -24,8 +24,8 @@
 #define FILES_PER_LINE		3
 
 /* Flags */
-#define LIST_LONG		1 << 0
-#define LIST_ALL		2 << 0
-#define LIST_COLORED		3 << 0
+#define LIST_LONG		     1
+#define LIST_ALL		1 << 1
+#define LIST_COLORED		2 << 1
 
 #endif	/* LS_H */
