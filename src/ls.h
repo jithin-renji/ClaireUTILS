@@ -21,8 +21,6 @@
 #ifndef LS_H
 #define LS_H
 
-#define FILES_PER_LINE		3
-
 /* Flags */
 #define LIST_LONG		     1
 #define LIST_ALL		1 << 1

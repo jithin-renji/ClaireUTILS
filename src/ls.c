@@ -93,9 +93,16 @@ void list (const char *dir_path, int flags)
 	int i = 0;
 	while (i < nfinished) {
 		struct stat *statbuf = malloc(sizeof(struct stat));
-		int ret = stat(files[i], statbuf);
+
+		/* FIXME: Set up dynamic memory allocation */
+		char full_fname[256] = "";
+		strcat(full_fname, dir_path);
+		strcat(full_fname, "/");
+		strcat(full_fname, files[i]);
+
+		int ret = stat(full_fname, statbuf);
 		if (ret == -1) {
-			perror("");
+			perror(full_fname);
 			exit(EXIT_FAILURE);
 		}
 		
