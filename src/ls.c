@@ -83,8 +83,7 @@ void list (const char *dir_path, int should_list_long,
 	struct dirent *dp;
 	int nlisted_in_line = 0;
 	while ((dp = readdir(dir)) != NULL) {
-		if (!should_list_all && (strcmp(".", dp->d_name) == 0
-		    || strcmp("..", dp->d_name) == 0)) {
+		if (!should_list_all && dp->d_name[0] == '.') {
 			/* Do nothing */
 		} else {
 			if (nlisted_in_line < FILES_PER_LINE) {
