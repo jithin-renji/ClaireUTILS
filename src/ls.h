@@ -21,11 +21,10 @@
 #ifndef LS_H
 #define LS_H
 
-#define FILES_PER_LINE		3
-
 /* Flags */
-#define LIST_LONG		     1
-#define LIST_ALL		1 << 1
-#define LIST_COLORED		2 << 1
+#define LS_LONG			1
+#define LS_ALL			1 << 1
+#define LS_ALL_NOT_DODD		1 << 2
+#define LS_COLORED		1 << 3
 
 #endif	/* LS_H */

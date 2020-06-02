@@ -36,18 +36,22 @@ int main (int argc, char **argv)
 	int flags;
 	int opt;
 
-	while ((opt = getopt(argc, argv, "laCH")) != -1) {
+	while ((opt = getopt(argc, argv, "laACH")) != -1) {
 		switch (opt) {
 		case 'l':
-			flags |= LIST_LONG;
+			flags |= LS_LONG;
 			break;
 
 		case 'a':
-			flags |= LIST_ALL;
+			flags |= LS_ALL;
+			break;
+
+		case 'A':
+			flags |= LS_ALL | LS_ALL_NOT_DODD;
 			break;
 
 		case 'C':
-			flags |= LIST_COLORED;
+			flags |= LS_COLORED;
 			break;
 
 		case 'H':
@@ -81,9 +85,20 @@ void list (const char *dir_path, int flags)
 	char files[200][256];
 	struct dirent *dp;
 	int nfinished = 0;
+	
 	while ((dp = readdir(dir)) != NULL) {
-		if ((flags & LIST_ALL) != LIST_ALL && dp->d_name[0] == '.') {
+		if ((flags & LS_ALL_NOT_DODD) == LS_ALL_NOT_DODD
+			   && (strcmp(dp->d_name, ".") == 0
+			   || strcmp(dp->d_name, "..") == 0)) {
+
 			/* Do nothing */
+
+
+		} else if ((flags & LS_ALL) != LS_ALL
+			   && dp->d_name[0] == '.') {
+
+			/* Do nothing */
+
 		} else {
 			strcpy(files[nfinished], dp->d_name);
 			nfinished += 1;
@@ -93,14 +108,21 @@ void list (const char *dir_path, int flags)
 	int i = 0;
 	while (i < nfinished) {
 		struct stat *statbuf = malloc(sizeof(struct stat));
-		int ret = stat(files[i], statbuf);
+
+		/* FIXME: Set up dynamic memory allocation */
+		char full_fname[256] = "";
+		strcat(full_fname, dir_path);
+		strcat(full_fname, "/");
+		strcat(full_fname, files[i]);
+
+		int ret = stat(full_fname, statbuf);
 		if (ret == -1) {
-			perror("");
+			perror(full_fname);
 			exit(EXIT_FAILURE);
 		}
 		
 		if ((statbuf->st_mode & S_IFMT) == S_IFDIR
-		    && (flags & LIST_COLORED) == LIST_COLORED) {
+		    && (flags & LS_COLORED) == LS_COLORED) {
 			printf(B_BLUE "%s\n" RESET, files[i]);
 		} else {
 			printf("%s\n", files[i]);
