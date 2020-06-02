@@ -109,7 +109,7 @@ void list (const char *dir_path, int flags)
 	while (i < nfinished) {
 		struct stat *statbuf = malloc(sizeof(struct stat));
 
-		/* FIXME: Set up dynamic memory allocation */
+		/* FIXME: Allocate memory dynamically */
 		char full_fname[256] = "";
 		strcat(full_fname, dir_path);
 		strcat(full_fname, "/");
