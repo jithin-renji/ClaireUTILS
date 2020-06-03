@@ -28,6 +28,7 @@
 #include "ls.h"
 #include "general.h"
 
+void get_permissions (mode_t mode, char *out_str);
 void list (const char *dir_path, int flags);
 void help (const char *progname);
 
@@ -73,6 +74,105 @@ int main (int argc, char **argv)
 	}
 }
 
+void get_permissions(mode_t mode, char *out_str)
+{
+	/* Check file type
+	 * TODO: Add support for socket and symbolic
+	 * 	 links too */
+	if (S_ISDIR(mode)) {
+		strcpy(out_str, "d");
+	} else if (S_ISCHR(mode)) {
+		strcpy(out_str, "c");
+	} else if (S_ISBLK(mode)) {
+		strcpy(out_str, "b");
+	} else if (S_ISFIFO(mode)) {
+		strcpy(out_str, "p");
+	} else if (S_ISREG(mode)) {
+		strcpy(out_str, "-");
+	} else {
+		strcpy(out_str, "?");
+	}
+
+	/* Check if owner can read */
+	if ((mode & S_IRUSR) == S_IRUSR) {
+		strcat(out_str, "r");
+	} else {
+		strcat(out_str, "-");
+	}
+
+	/* Check if owner can write */
+	if ((mode & S_IWUSR) == S_IWUSR) {
+		strcat(out_str, "w");
+	} else {
+		strcat(out_str, "-");
+	}
+
+	/* Check if owner can execute */
+	if ((mode & S_IXUSR) == S_IXUSR) {
+		if ((mode & S_ISUID) == S_ISUID) {
+			strcat(out_str, "s");
+		} else {
+			strcat(out_str, "x");
+		}
+	} else {
+		if ((mode & S_ISUID) == S_ISUID) {
+			strcat(out_str, "S");
+		} else {
+			strcat(out_str, "-");
+		}
+	}
+
+	/* Check if group can read */
+	if ((mode & S_IRGRP) == S_IRGRP) {
+		strcat(out_str, "r");
+	} else {
+		strcat(out_str, "-");
+	}
+
+	/* Check if group can write */
+	if ((mode & S_IWGRP) == S_IWGRP) {
+		strcat(out_str, "w");
+	} else {
+		strcat(out_str, "-");
+	}
+
+	/* Check if group can execute */
+	if ((mode & S_IXGRP) == S_IXGRP) {
+		if ((mode & S_ISGID) == S_ISGID) {
+			strcat(out_str, "s");
+		} else {
+			strcat(out_str, "x");
+		}
+	} else {
+		if ((mode & S_ISGID) == S_ISGID) {
+			strcat(out_str, "S");
+		} else {
+			strcat(out_str, "-");
+		}
+	}
+
+	/* Check if others can read */
+	if ((mode & S_IROTH) == S_IROTH) {
+		strcat(out_str, "r");
+	} else {
+		strcat(out_str, "-");
+	}
+
+	/* Check if others can write */
+	if ((mode & S_IWOTH) == S_IWOTH) {
+		strcat(out_str, "w");
+	} else {
+		strcat(out_str, "-");
+	}
+
+	/* Check if others can execute */
+	if ((mode & S_IXOTH) == S_IXOTH) {
+		strcat(out_str, "x");
+	} else {
+		strcat(out_str, "-");
+	}
+}
+
 void list (const char *dir_path, int flags)
 {
 	DIR *dir = opendir(dir_path);
@@ -107,7 +207,7 @@ void list (const char *dir_path, int flags)
 
 	int i = 0;
 	while (i < nfinished) {
-		struct stat *statbuf = malloc(sizeof(struct stat));
+		struct stat statbuf;
 
 		/* FIXME: Allocate memory dynamically */
 		char full_fname[256] = "";
@@ -115,21 +215,38 @@ void list (const char *dir_path, int flags)
 		strcat(full_fname, "/");
 		strcat(full_fname, files[i]);
 
-		int ret = stat(full_fname, statbuf);
+		int ret = stat(full_fname, &statbuf);
 		if (ret == -1) {
 			perror(full_fname);
 			exit(EXIT_FAILURE);
 		}
+
+		/* Full permissions string
+		 * Eg: -rw-rw-r-- */
+		char permissions[11] = "";
+
+		/* If color output is being asked,
+		 * the color specified in this string
+		 * will be used */
+		char color[10] = "";
 		
-		if ((statbuf->st_mode & S_IFMT) == S_IFDIR
-		    && (flags & LS_COLORED) == LS_COLORED) {
-			printf(B_BLUE "%s\n" RESET, files[i]);
-		} else {
-			printf("%s\n", files[i]);
+		mode_t mode = statbuf.st_mode;
+		get_permissions(mode, permissions);
+
+
+		if ((flags & LS_COLORED) == LS_COLORED) {
+			if (S_ISDIR(mode)) {
+				strcpy(color, B_BLUE);
+			}
 		}
 
+		if ((flags & LS_LONG) == LS_LONG) {
+			printf("%s\t", permissions);
+		}
+
+		printf("%s%s\n" RESET , color, files[i]);
+
 		i += 1;
-		free(statbuf);
 	}
 }
 
