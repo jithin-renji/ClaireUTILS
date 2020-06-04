@@ -40,7 +40,7 @@ int main (int argc, char **argv)
 	int flags;
 	int opt;
 
-	while ((opt = getopt(argc, argv, "lacAH")) != -1) {
+	while ((opt = getopt(argc, argv, "lacCAH")) != -1) {
 		switch (opt) {
 		case 'l':
 			flags |= LS_LONG;
@@ -54,6 +54,7 @@ int main (int argc, char **argv)
 			flags |= LS_ALL | LS_ALL_NOT_DODD;
 			break;
 
+		case 'C':
 		case 'c':
 			flags |= LS_COLORED;
 			break;
@@ -237,10 +238,13 @@ void list (const char *dir_path, int flags)
 		uid_t uid = statbuf.st_uid;
 		gid_t gid = statbuf.st_gid;
 
+		size_t links = statbuf.st_nlink;
 		get_permissions(mode, permissions);
 
 		struct passwd *usr_info = getpwuid(uid);
 		struct group *grp_info = getgrgid(gid);
+
+		size_t fsize = statbuf.st_size;
 
 		if ((flags & LS_COLORED) == LS_COLORED) {
 			if (S_ISDIR(mode)) {
@@ -249,8 +253,9 @@ void list (const char *dir_path, int flags)
 		}
 
 		if ((flags & LS_LONG) == LS_LONG) {
-			printf("%s\t%s\t%s\t", permissions, usr_info->pw_name
-					     , grp_info->gr_name);
+			printf("%s  %ld\t%s\t%s\t%ld\t", permissions,
+					links, usr_info->pw_name,
+					grp_info->gr_name, fsize);
 		}
 
 		printf("%s%s\n" RESET , color, files[i]);
