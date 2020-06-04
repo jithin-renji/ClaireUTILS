@@ -191,15 +191,13 @@ void list (const char *dir_path, int flags)
 	int nfinished = 0;
 	
 	while ((dp = readdir(dir)) != NULL) {
-		if ((flags & LS_ALL_NOT_DODD) == LS_ALL_NOT_DODD
-			   && (strcmp(dp->d_name, ".") == 0
+		if (CHKF_ALL_NOT_DODD(flags) && (strcmp(dp->d_name, ".") == 0
 			   || strcmp(dp->d_name, "..") == 0)) {
 
 			/* Do nothing */
 
 
-		} else if ((flags & LS_ALL) != LS_ALL
-			   && dp->d_name[0] == '.') {
+		} else if (!CHKF_ALL(flags) && dp->d_name[0] == '.') {
 
 			/* Do nothing */
 
@@ -246,13 +244,13 @@ void list (const char *dir_path, int flags)
 
 		size_t fsize = statbuf.st_size;
 
-		if ((flags & LS_COLORED) == LS_COLORED) {
+		if (CHKF_COLORED(flags)) {
 			if (S_ISDIR(mode)) {
 				strcpy(color, B_BLUE);
 			}
 		}
 
-		if ((flags & LS_LONG) == LS_LONG) {
+		if (CHKF_LONG(flags)) {
 			printf("%s  %ld\t%s\t%s\t%ld\t", permissions,
 					links, usr_info->pw_name,
 					grp_info->gr_name, fsize);
