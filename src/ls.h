@@ -27,4 +27,9 @@
 #define LS_ALL_NOT_DODD		1 << 2
 #define LS_COLORED		1 << 3
 
+#define CHKF_LONG(flags) ((flags & LS_LONG) == LS_LONG)
+#define CHKF_ALL(flags) ((flags & LS_ALL) == LS_ALL)
+#define CHKF_ALL_NOT_DODD(flags) ((flags & LS_ALL_NOT_DODD) == LS_ALL_NOT_DODD)
+#define CHKF_COLORED(flags) ((flags & LS_COLORED) == LS_COLORED)
+
 #endif	/* LS_H */
