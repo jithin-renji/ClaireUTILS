@@ -23,6 +23,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <pwd.h>
+#include <grp.h>
 #include <dirent.h>
 
 #include "ls.h"
@@ -231,8 +234,13 @@ void list (const char *dir_path, int flags)
 		char color[10] = "";
 		
 		mode_t mode = statbuf.st_mode;
+		uid_t uid = statbuf.st_uid;
+		gid_t gid = statbuf.st_gid;
+
 		get_permissions(mode, permissions);
 
+		struct passwd *usr_info = getpwuid(uid);
+		struct group *grp_info = getgrgid(gid);
 
 		if ((flags & LS_COLORED) == LS_COLORED) {
 			if (S_ISDIR(mode)) {
@@ -241,7 +249,8 @@ void list (const char *dir_path, int flags)
 		}
 
 		if ((flags & LS_LONG) == LS_LONG) {
-			printf("%s\t", permissions);
+			printf("%s\t%s\t%s\t", permissions, usr_info->pw_name
+					     , grp_info->gr_name);
 		}
 
 		printf("%s%s\n" RESET , color, files[i]);
