@@ -40,7 +40,7 @@ int main (int argc, char **argv)
 	int flags;
 	int opt;
 
-	while ((opt = getopt(argc, argv, "laACH")) != -1) {
+	while ((opt = getopt(argc, argv, "lacAH")) != -1) {
 		switch (opt) {
 		case 'l':
 			flags |= LS_LONG;
@@ -54,7 +54,7 @@ int main (int argc, char **argv)
 			flags |= LS_ALL | LS_ALL_NOT_DODD;
 			break;
 
-		case 'C':
+		case 'c':
 			flags |= LS_COLORED;
 			break;
 
