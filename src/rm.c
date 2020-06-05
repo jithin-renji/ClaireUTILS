@@ -21,6 +21,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <dirent.h>
+#include <fcntl.h>
+#include <errno.h>
 
 #include "rm.h"
 
@@ -38,8 +41,11 @@ int main (int argc, char **argv)
 	int flags = 0;
 	int opt = 0;
 
-	while ((opt = getopt(argc, argv, "rfih")) != -1) {
+	while ((opt = getopt(argc, argv, "drfih")) != -1) {
 		switch (opt) {
+		case 'd':
+			flags |= RM_EMPTY_DIRS;
+			break;
 		case 'r':
 			flags |= RM_RECURSIVE;
 			break;
@@ -54,6 +60,7 @@ int main (int argc, char **argv)
 
 		case 'h':
 			help(argv[0]);
+			exit(EXIT_SUCCESS);
 			break;
 
 		default:
@@ -72,7 +79,38 @@ int main (int argc, char **argv)
 
 void rm (const char *fname, int flags)
 {
-	printf("%s\n", fname);
+	int fd_flags = 0;
+	int unlink_flags = 0;
+
+	if (CHKF_RECURSIVE(flags) || CHKF_EMPTY_DIRS(flags)) {
+		fd_flags = O_RDONLY | O_DIRECTORY;
+		unlink_flags = AT_REMOVEDIR;
+	} else {
+		fd_flags = O_RDWR;
+	}
+
+	int fd = open(fname, fd_flags);
+
+	if (fd == -1) {
+		perror(fname);
+		exit(EXIT_FAILURE);
+	}
+
+	char resp[2] = "y";
+
+	if (CHKF_INTERACTIVE(flags)) {
+		printf("Remove '%s'? ", fname);
+		fgets(resp, 2, stdin);
+	}
+
+	if (resp[0] == 'y' || resp[0] == 'Y') {
+		int ret = unlinkat(AT_FDCWD, fname, unlink_flags);
+
+		if (ret == -1) {
+			perror(fname);
+			exit(EXIT_FAILURE);
+		}
+	}
 }
 
 void help (const char *progname)

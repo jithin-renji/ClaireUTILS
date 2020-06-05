@@ -6,6 +6,7 @@ SRC = src/cat.c \
       src/false.c \
       src/wc.c \
       src/unlink.c \
+      src/rm.c \
       src/ls.c
 
 ALL_BIN = cat \
@@ -13,6 +14,7 @@ ALL_BIN = cat \
 	  false \
 	  wc \
 	  unlink \
+	  rm \
 	  ls
 
 OUT_DIR = bin
@@ -37,6 +39,9 @@ wc: src/wc.c check_bin_dir
 unlink: src/unlink.c check_bin_dir
 	$(CC) src/unlink.c $(CFLAGS) -o $(OUT_DIR)/unlink
 
+rm: src/rm.c check_bin_dir
+	$(CC) src/rm.c $(CFLAGS) -o $(OUT_DIR)/rm
+
 ls: src/ls.c check_bin_dir
 	$(CC) src/ls.c $(CFLAGS) -o $(OUT_DIR)/ls
 	@echo "Output dir: $(OUT_DIR)/"
@@ -53,4 +58,5 @@ help:
 	@echo "\tfalse"
 	@echo "\twc"
 	@echo "\tunlink"
+	@echo "\trm"
 	@echo "\tls"

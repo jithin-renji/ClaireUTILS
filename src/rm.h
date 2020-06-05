@@ -22,12 +22,14 @@
 #define RM_H
 
 /* Flags */
-#define RM_RECURSIVE		1
-#define RM_FORCE		1 << 1
-#define RM_INTERACTIVE		1 << 2
+#define RM_EMPTY_DIRS		1
+#define RM_RECURSIVE		1 << 1
+#define RM_FORCE		1 << 2
+#define RM_INTERACTIVE		1 << 3
 
 /* Check flag macros */
-#define CHKF_RECURSE(flags) ((flags & RM_RECURSIVE) == RM_RECURSIVE)
+#define CHKF_EMPTY_DIRS(flags) ((flags & RM_EMPTY_DIRS) == RM_EMPTY_DIRS)
+#define CHKF_RECURSIVE(flags) ((flags & RM_RECURSIVE) == RM_RECURSIVE)
 #define CHKF_FORCE(flags) ((flags & RM_FORCE) == RM_FORCE)
 #define CHKF_INTERACTIVE(flags) ((flags & RM_INTERACTIVE) == RM_INTERACTIVE)
 
