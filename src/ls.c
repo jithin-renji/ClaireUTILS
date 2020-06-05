@@ -37,8 +37,8 @@ void help (const char *progname);
 
 int main (int argc, char **argv)
 {
-	int flags;
-	int opt;
+	int flags = 0;
+	int opt = 0;
 
 	while ((opt = getopt(argc, argv, "lacCAH")) != -1) {
 		switch (opt) {
@@ -74,7 +74,14 @@ int main (int argc, char **argv)
 	if (argv[optind] == NULL) {
 		list(".", flags);
 	} else {
-		list(argv[optind], flags);
+		int i = optind;
+		while (i < argc) {
+			printf("%s:\n", argv[i]);
+			list(argv[i], flags);
+			printf("\n");
+
+			i += 1;
+		}
 	}
 }
 
@@ -260,6 +267,8 @@ void list (const char *dir_path, int flags)
 
 		i += 1;
 	}
+
+	closedir(dir);
 }
 
 void help (const char *progname)
