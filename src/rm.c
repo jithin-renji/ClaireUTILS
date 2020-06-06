@@ -96,20 +96,26 @@ int rm (const char *fname, int flags)
 	int fd = open(fname, fd_flags);
 
 	if (fd == -1) {
-		perror(fname);
+		if (!CHKF_FORCE(flags))
+			perror(fname);
 		return -1;
 	}
 
 	char resp[3] = "y";
+	if (!CHKF_FORCE(flags)) {
+		if (CHKF_INTERACTIVE(flags)) {
+			printf("Remove '%s'? ", fname);
 
-	if (CHKF_INTERACTIVE(flags)) {
-		printf("Remove '%s'? ", fname);
-		fgets(resp, 3, stdin);
+			char *ret = fgets(resp, 3, stdin);
+			if (ret == NULL) {
+				resp[0] = 'n';
+			}
+		}
 	}
 
 	if (resp[0] == 'y' || resp[0] == 'Y') {
 		int ret = unlinkat(AT_FDCWD, fname, unlink_flags);
-
+	
 		if (ret == -1) {
 			perror(fname);
 			return -1;
@@ -125,7 +131,8 @@ void help (const char *progname)
 	printf("Usage: %s [OPTION]... [FILE]...\n\n", progname);
 
 	printf("Options:\n");
-	printf("\t-r\tRemove directories recursively\n"
-	       "\t-d\tRemove empty directories\n"
-	       "\t-i\tAsk before removing\n");
+	printf("\t-i\tAsk before removing\n"
+	       "\t-f\tRemove files without prompting; don't complain about non-existent files\n"
+	       "\t-r\tRemove directories recursively\n"
+	       "\t-d\tRemove empty directories\n");
 }

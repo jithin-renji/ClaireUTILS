@@ -57,14 +57,15 @@ ls: src/ls.c check_bin_dir
 clean:
 	rm -rf $(OUT_DIR)/
 
-install:
+install: all
 	cp $(OUT_DIR)/* $(INSTALL_DIR)
 help:
-	@echo "Targets:"
-	@echo "\tcat"
-	@echo "\ttrue"
-	@echo "\tfalse"
-	@echo "\twc"
-	@echo "\tunlink"
-	@echo "\trm"
-	@echo "\tls"
+	@echo -e "Targets:"
+	@echo -e "\tcat"
+	@echo -e "\tyes"
+	@echo -e "\ttrue"
+	@echo -e "\tfalse"
+	@echo -e "\twc"
+	@echo -e "\tunlink"
+	@echo -e "\trm"
+	@echo -e "\tls"
