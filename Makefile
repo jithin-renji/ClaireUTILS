@@ -18,6 +18,7 @@ ALL_BIN = cat \
 	  ls
 
 OUT_DIR = bin
+INSTALL_DIR = /usr/bin
 
 all: $(SRC) check_bin_dir $(ALL_BIN)
 
@@ -51,6 +52,8 @@ ls: src/ls.c check_bin_dir
 clean:
 	rm -rf $(OUT_DIR)/
 
+install:
+	cp $(OUT_DIR)/* $(INSTALL_DIR)
 help:
 	@echo "Targets:"
 	@echo "\tcat"
