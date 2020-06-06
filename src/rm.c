@@ -28,7 +28,7 @@
 #include "rm.h"
 
 void help (const char *progname);
-void rm (const char *fname, int flags);
+int rm (const char *fname, int flags);
 
 int main (int argc, char **argv)
 {
@@ -73,11 +73,15 @@ int main (int argc, char **argv)
 		printf("%s: Missing operand\n", argv[0]);
 		printf("Try `%s -h` for more information.\n", argv[0]);
 	} else {
-		rm(argv[optind], flags);
+		char **fnames_ptr = argv + optind;
+		while (*fnames_ptr != NULL) {
+			rm(*fnames_ptr, flags);
+			++fnames_ptr;
+		}
 	}
 }
 
-void rm (const char *fname, int flags)
+int rm (const char *fname, int flags)
 {
 	int fd_flags = 0;
 	int unlink_flags = 0;
@@ -93,14 +97,14 @@ void rm (const char *fname, int flags)
 
 	if (fd == -1) {
 		perror(fname);
-		exit(EXIT_FAILURE);
+		return -1;
 	}
 
-	char resp[2] = "y";
+	char resp[3] = "y";
 
 	if (CHKF_INTERACTIVE(flags)) {
 		printf("Remove '%s'? ", fname);
-		fgets(resp, 2, stdin);
+		fgets(resp, 3, stdin);
 	}
 
 	if (resp[0] == 'y' || resp[0] == 'Y') {
@@ -108,12 +112,20 @@ void rm (const char *fname, int flags)
 
 		if (ret == -1) {
 			perror(fname);
-			exit(EXIT_FAILURE);
+			return -1;
 		}
 	}
+
+	close(fd);
+	return 0;
 }
 
 void help (const char *progname)
 {
 	printf("Usage: %s [OPTION]... [FILE]...\n\n", progname);
+
+	printf("Options:\n");
+	printf("\t-r\tRemove directories recursively\n"
+	       "\t-d\tRemove empty directories\n"
+	       "\t-i\tAsk before removing\n");
 }
