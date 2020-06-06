@@ -73,7 +73,11 @@ int main (int argc, char **argv)
 		printf("%s: Missing operand\n", argv[0]);
 		printf("Try `%s -h` for more information.\n", argv[0]);
 	} else {
-		rm(argv[optind], flags);
+		char **fnames_ptr = argv + optind;
+		while (*fnames_ptr != NULL) {
+			rm(*fnames_ptr, flags);
+			++fnames_ptr;
+		}
 	}
 }
 
