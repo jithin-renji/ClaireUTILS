@@ -4,6 +4,7 @@ CFLAGS = -Wall
 SRC = src/cat.c \
       src/true.c \
       src/false.c \
+      src/yes.c \
       src/wc.c \
       src/unlink.c \
       src/rm.c \
@@ -12,6 +13,7 @@ SRC = src/cat.c \
 ALL_BIN = cat \
 	  true \
 	  false \
+	  yes \
 	  wc \
 	  unlink \
 	  rm \
@@ -33,6 +35,9 @@ true: src/true.c check_bin_dir
 
 false: src/false.c check_bin_dir
 	$(CC) src/false.c $(CFLAGS) -o $(OUT_DIR)/false
+
+yes: src/yes.c check_bin_dir
+	$(CC) src/yes.c $(CFLAGS) -o $(OUT_DIR)/yes
 
 wc: src/wc.c check_bin_dir
 	$(CC) src/wc.c $(CFLAGS) -o $(OUT_DIR)/wc
