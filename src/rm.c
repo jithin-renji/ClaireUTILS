@@ -186,6 +186,8 @@ int rm_recursive (const char *fname)
 		}
 	}
 
+	closedir(dir_stream);
+
 	return ret_val;
 }
 
