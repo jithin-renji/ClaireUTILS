@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <fcntl.h>
@@ -29,6 +30,7 @@
 
 void help (const char *progname);
 int rm (const char *fname, int flags);
+int rm_recursive(int rel_fd, const char *fname);
 
 int main (int argc, char **argv)
 {
@@ -101,29 +103,45 @@ int rm (const char *fname, int flags)
 		return -1;
 	}
 
+	int ret_val = 0;
 	char resp[3] = "y";
 	if (!CHKF_FORCE(flags)) {
 		if (CHKF_INTERACTIVE(flags)) {
 			printf("Remove '%s'? ", fname);
 
-			char *ret = fgets(resp, 3, stdin);
-			if (ret == NULL) {
+			char *ret_str = fgets(resp, 3, stdin);
+			if (ret_str == NULL) {
 				resp[0] = 'n';
 			}
 		}
 	}
 
-	if (resp[0] == 'y' || resp[0] == 'Y') {
-		int ret = unlinkat(AT_FDCWD, fname, unlink_flags);
+	if (CHKF_RECURSIVE(flags)) {
+		ret_val = rm_recursive(AT_FDCWD, fname);
+		if (ret_val != -1) {
+			ret_val = unlinkat(AT_FDCWD, fname, AT_REMOVEDIR);
+			if (ret_val == -1) {
+				perror(fname);
+			}
+		}
+	} else if (resp[0] == 'y' || resp[0] == 'Y') {
+		ret_val = unlinkat(AT_FDCWD, fname, unlink_flags);
 	
-		if (ret == -1) {
+		if (ret_val == -1) {
 			perror(fname);
-			return -1;
 		}
 	}
 
 	close(fd);
-	return 0;
+	return ret_val;
+}
+
+int rm_recursive (int rel_fd, const char *fname)
+{
+	DIR *dir_stream = opendir(fname);
+	int ret_val = 0;
+
+	return ret_val;
 }
 
 void help (const char *progname)
