@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -30,7 +31,7 @@
 
 void help (const char *progname);
 int rm (const char *fname, int flags);
-int rm_recursive(int rel_fd, const char *fname);
+int rm_recursive(const char *fname);
 
 int main (int argc, char **argv)
 {
@@ -117,13 +118,7 @@ int rm (const char *fname, int flags)
 	}
 
 	if (CHKF_RECURSIVE(flags)) {
-		ret_val = rm_recursive(AT_FDCWD, fname);
-		if (ret_val != -1) {
-			ret_val = unlinkat(AT_FDCWD, fname, AT_REMOVEDIR);
-			if (ret_val == -1) {
-				perror(fname);
-			}
-		}
+		ret_val = rm_recursive(fname);
 	} else if (resp[0] == 'y' || resp[0] == 'Y') {
 		ret_val = unlinkat(AT_FDCWD, fname, unlink_flags);
 	
@@ -136,10 +131,60 @@ int rm (const char *fname, int flags)
 	return ret_val;
 }
 
-int rm_recursive (int rel_fd, const char *fname)
+int rm_recursive (const char *fname)
 {
 	DIR *dir_stream = opendir(fname);
 	int ret_val = 0;
+	char fpath[2048] = "";
+
+	strcpy(fpath, fname);
+
+	if (dir_stream != NULL) {
+		struct dirent *dp;
+		while ((dp = readdir(dir_stream)) != NULL) {
+			struct stat stat_buf;
+
+			if (strcmp(dp->d_name, ".") == 0 ||
+			    strcmp(dp->d_name, "..") == 0) {
+				continue;
+			}
+
+			strcat(fpath, "/");
+			strcat(fpath, dp->d_name);
+			stat(fpath, &stat_buf);
+
+			mode_t mode = stat_buf.st_mode;
+
+			if (S_ISDIR(mode)) {
+				ret_val = unlinkat(AT_FDCWD, fpath, AT_REMOVEDIR);
+
+				if (ret_val == -1 && errno != ENOTEMPTY && errno != ENOTDIR) {
+					perror(fpath);
+				} else if (ret_val == -1 && errno == ENOTEMPTY) {
+					rm_recursive(fpath);
+				} else if (ret_val == -1 && errno == ENOTDIR) {
+					ret_val = unlinkat(AT_FDCWD, fpath, 0);
+				}
+			} else {
+				ret_val = unlinkat(AT_FDCWD, fpath, 0);
+				if (ret_val == -1) {
+					perror(fpath);
+				}
+			}
+
+			strcpy(fpath, fname);
+		}
+
+		ret_val = unlinkat(AT_FDCWD, fpath, AT_REMOVEDIR);
+		if (ret_val == -1) {
+			perror(fpath);
+		}
+	} else {
+		ret_val = unlinkat(AT_FDCWD, fpath, 0);
+		if (ret_val == -1) {
+			perror("yikes");
+		}
+	}
 
 	return ret_val;
 }
