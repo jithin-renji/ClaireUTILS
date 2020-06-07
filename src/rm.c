@@ -182,7 +182,7 @@ int rm_recursive (const char *fname)
 	} else {
 		ret_val = unlinkat(AT_FDCWD, fpath, 0);
 		if (ret_val == -1) {
-			perror("yikes");
+			perror(fpath);
 		}
 	}
 
