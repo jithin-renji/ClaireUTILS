@@ -60,12 +60,12 @@ clean:
 install: all
 	cp $(OUT_DIR)/* $(INSTALL_DIR)
 help:
-	@echo -e "Targets:"
-	@echo -e "\tcat"
-	@echo -e "\tyes"
-	@echo -e "\ttrue"
-	@echo -e "\tfalse"
-	@echo -e "\twc"
-	@echo -e "\tunlink"
-	@echo -e "\trm"
-	@echo -e "\tls"
+	@`which echo` -e "Targets:"
+	@`which echo` -e "\tcat"
+	@`which echo` -e "\tyes"
+	@`which echo` -e "\ttrue"
+	@`which echo` -e "\tfalse"
+	@`which echo` -e "\twc"
+	@`which echo` -e "\tunlink"
+	@`which echo` -e "\trm"
+	@`which echo` -e "\tls"
