@@ -86,22 +86,10 @@ int main (int argc, char **argv)
 
 int rm (const char *fname, int flags)
 {
-	int fd_flags = 0;
 	int unlink_flags = 0;
 
 	if (CHKF_RECURSIVE(flags) || CHKF_EMPTY_DIRS(flags)) {
-		fd_flags = O_RDONLY | O_DIRECTORY;
 		unlink_flags = AT_REMOVEDIR;
-	} else {
-		fd_flags = O_RDWR;
-	}
-
-	int fd = open(fname, fd_flags);
-
-	if (fd == -1) {
-		if (!CHKF_FORCE(flags))
-			perror(fname);
-		return -1;
 	}
 
 	int ret_val = 0;
@@ -123,11 +111,11 @@ int rm (const char *fname, int flags)
 		ret_val = unlinkat(AT_FDCWD, fname, unlink_flags);
 	
 		if (ret_val == -1) {
-			perror(fname);
+			if (!CHKF_FORCE(flags))
+				perror(fname);
 		}
 	}
 
-	close(fd);
 	return ret_val;
 }
 
