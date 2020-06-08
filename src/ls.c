@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -32,6 +33,8 @@
 #include "general.h"
 
 void get_permissions (mode_t mode, char *out_str);
+void convert_to_month_word (char *month_num_str);
+void set_mdate (char *mdate_str, time_t mtime);
 void list (const char *dir_path, int flags);
 void help (const char *progname);
 
@@ -184,6 +187,55 @@ void get_permissions(mode_t mode, char *out_str)
 	}
 }
 
+
+/* Is there a better way to do this? */
+void convert_to_month_word (char *month_num_str)
+{
+	if (strcmp(month_num_str, "01") == 0) {
+		strcpy(month_num_str, "Jan");
+	} else if (strcmp(month_num_str, "02") == 0) {
+		strcpy(month_num_str, "Feb");
+	} else if (strcmp(month_num_str, "03") == 0) {
+		strcpy(month_num_str, "Mar");
+	} else if (strcmp(month_num_str, "04") == 0) {
+		strcpy(month_num_str, "Apr");
+	} else if (strcmp(month_num_str, "05") == 0) {
+		strcpy(month_num_str, "May");
+	} else if (strcmp(month_num_str, "06") == 0) {
+		strcpy(month_num_str, "Jun");
+	} else if (strcmp(month_num_str, "07") == 0) {
+		strcpy(month_num_str, "Jul");
+	} else if (strcmp(month_num_str, "08") == 0) {
+		strcpy(month_num_str, "Aug");
+	} else if (strcmp(month_num_str, "09") == 0) {
+		strcpy(month_num_str, "Sep");
+	} else if (strcmp(month_num_str, "10") == 0) {
+		strcpy(month_num_str, "Oct");
+	} else if (strcmp(month_num_str, "11") == 0) {
+		strcpy(month_num_str, "Nov");
+	} else if (strcmp(month_num_str, "12") == 0) {
+		strcpy(month_num_str, "Dec");
+	}
+}
+
+void set_mdate (char *mdate_str, time_t mtime)
+{
+	char month[10];
+	char day[5];
+	char time[10];
+
+	strftime(month, 10, "%m", localtime(&mtime));
+	convert_to_month_word(month);
+
+	strftime(day, 5, "%d", localtime(&mtime));
+	strftime(time, 10, "%H:%M", localtime(&mtime));
+
+	strcat(mdate_str, month);
+	strcat(mdate_str, " ");
+	strcat(mdate_str, day);
+	strcat(mdate_str, " ");
+	strcat(mdate_str, time);
+}
 void list (const char *dir_path, int flags)
 {
 	DIR *dir = opendir(dir_path);
@@ -250,6 +302,9 @@ void list (const char *dir_path, int flags)
 		struct group *grp_info = getgrgid(gid);
 
 		size_t fsize = statbuf.st_size;
+		char mdate[256];
+
+		set_mdate(mdate, statbuf.st_mtime);
 
 		if (CHKF_COLORED(flags)) {
 			if (S_ISDIR(mode)) {
@@ -258,12 +313,15 @@ void list (const char *dir_path, int flags)
 		}
 
 		if (CHKF_LONG(flags)) {
-			printf("%s  %ld\t%s\t%s\t%ld\t", permissions,
+			printf("%s  %ld\t%s\t%s\t%ld\t%s\t", permissions,
 					links, usr_info->pw_name,
-					grp_info->gr_name, fsize);
+					grp_info->gr_name, fsize,
+					mdate);
 		}
 
 		printf("%s%s\n" RESET , color, files[i]);
+
+		strcpy(mdate, "");
 
 		i += 1;
 	}
