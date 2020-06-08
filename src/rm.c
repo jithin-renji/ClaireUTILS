@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <getopt.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <fcntl.h>
@@ -39,18 +40,29 @@ int rm_recursive(const char *fname);
 void help (const char *progname);
 void version (const char *progname);
 
+struct option long_opt[] = {
+	{"interactive", no_argument, 0, 'i'},
+	{"force", 	no_argument, 0, 'f'},
+	{"recursive", 	no_argument, 0, 'r'},
+	{"dir", 	no_argument, 0, 'd'},
+	{"verbose", 	no_argument, 0, 'v'},
+	{"version", 	no_argument, 0, 'V'},
+	{"help", 	no_argument, 0, 'h'},
+
+};
+
 int main (int argc, char **argv)
 {
 	if (argc < 2) {
 		fprintf(stderr, "%s: Missing operand\n", argv[0]);
-		fprintf(stderr, "Try `%s -h` for more information.\n", argv[0]);
+		fprintf(stderr, "Try `%s --help` for more information.\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
 
 	int flags = 0;
 	int opt = 0;
 
-	while ((opt = getopt(argc, argv, "drfihV")) != -1) {
+	while ((opt = getopt_long(argc, argv, "drfihV", long_opt, NULL)) != -1) {
 		switch (opt) {
 		case 'd':
 			flags |= RM_EMPTY_DIRS;
@@ -78,14 +90,14 @@ int main (int argc, char **argv)
 			break;
 
 		default:
-			printf("Try `%s -h` for more information.\n", argv[0]);
+			printf("Try `%s --help` for more information.\n", argv[0]);
 			exit(EXIT_FAILURE);
 		}
 	}
 
 	if (argv[optind] == NULL) {
 		printf("%s: Missing operand\n", argv[0]);
-		printf("Try `%s -h` for more information.\n", argv[0]);
+		printf("Try `%s --help` for more information.\n", argv[0]);
 	} else {
 		char **fnames_ptr = argv + optind;
 		while (*fnames_ptr != NULL) {
@@ -206,11 +218,11 @@ void help (const char *progname)
 	printf("Usage: %s [OPTION]... [FILE]...\n\n", progname);
 
 	printf("Options:\n");
-	printf("\t-i\tAsk before removing\n"
-	       "\t-f\tRemove files without prompting; don't complain about non-existent files\n"
-	       "\t-r\tRemove directories recursively\n"
-	       "\t-d\tRemove empty directories\n"
-	       "\t-v\tDisplay the names of the files that are being deleted\n"
-	       "\t-V\tDisplay version information and exit\n"
-	       "\t-h\tShow this help message and exit\n");
+	printf("\t-i, --interactive\tAsk before removing\n"
+	       "\t-f, --force\tRemove files without prompting; don't complain about non-existent files\n"
+	       "\t-r, --recursive\tRemove directories recursively\n"
+	       "\t-d, --dir\tRemove empty directories\n"
+	       "\t-v, --verbose\tDisplay the names of the files that are being deleted\n"
+	       "\t-V, --version\tDisplay version information and exit\n"
+	       "\t-h, --help\tShow this help message and exit\n");
 }
