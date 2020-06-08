@@ -238,16 +238,17 @@ void set_mdate (char *mdate_str, time_t mtime)
 }
 void list (const char *dir_path, int flags)
 {
-	DIR *dir = opendir(dir_path);
+	DIR *dir;
+	char files[200][256];
+	struct dirent *dp;
+	int nfinished = 0;
+
+	dir = opendir(dir_path);
 
 	if (dir == NULL) {
 		perror(dir_path);
 		exit(EXIT_FAILURE);
 	}
-
-	char files[200][256];
-	struct dirent *dp;
-	int nfinished = 0;
 	
 	while ((dp = readdir(dir)) != NULL) {
 		if (CHKF_ALL_NOT_DODD(flags) && (strcmp(dp->d_name, ".") == 0
@@ -292,18 +293,16 @@ void list (const char *dir_path, int flags)
 		char color[10] = "";
 		
 		mode_t mode = statbuf.st_mode;
+		size_t links = statbuf.st_nlink;
 		uid_t uid = statbuf.st_uid;
 		gid_t gid = statbuf.st_gid;
-
-		size_t links = statbuf.st_nlink;
-		get_permissions(mode, permissions);
-
 		struct passwd *usr_info = getpwuid(uid);
 		struct group *grp_info = getgrgid(gid);
 
 		size_t fsize = statbuf.st_size;
 		char mdate[256];
 
+		get_permissions(mode, permissions);
 		set_mdate(mdate, statbuf.st_mtime);
 
 		if (CHKF_COLORED(flags)) {
