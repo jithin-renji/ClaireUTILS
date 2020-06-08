@@ -29,9 +29,15 @@
 
 #include "rm.h"
 
-void help (const char *progname);
+/* Remove files and/or empty directories */
 int rm (const char *fname, int flags);
+
+/* This function is called when deleting
+ * directories recursively */
 int rm_recursive(const char *fname);
+
+void help (const char *progname);
+void version (const char *progname);
 
 int main (int argc, char **argv)
 {
@@ -44,7 +50,7 @@ int main (int argc, char **argv)
 	int flags = 0;
 	int opt = 0;
 
-	while ((opt = getopt(argc, argv, "drfih")) != -1) {
+	while ((opt = getopt(argc, argv, "drfihV")) != -1) {
 		switch (opt) {
 		case 'd':
 			flags |= RM_EMPTY_DIRS;
@@ -63,6 +69,11 @@ int main (int argc, char **argv)
 
 		case 'h':
 			help(argv[0]);
+			exit(EXIT_SUCCESS);
+			break;
+
+		case 'V':
+			version(argv[0]);
 			exit(EXIT_SUCCESS);
 			break;
 
@@ -179,6 +190,17 @@ int rm_recursive (const char *fname)
 	return ret_val;
 }
 
+void version (const char *progname)
+{
+	printf("%s (JuliusUTILS) v0.1\n", progname);
+
+	printf("Copyright (C) 2020 Jithin Renji\n"
+"License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\n"
+"This is free software: you are free to change and redistribute it.\n"
+"There is NO WARRANTY, to the extent permitted by law.\n\n"
+"Written by Jithin Renji.\n");
+}
+
 void help (const char *progname)
 {
 	printf("Usage: %s [OPTION]... [FILE]...\n\n", progname);
@@ -187,5 +209,8 @@ void help (const char *progname)
 	printf("\t-i\tAsk before removing\n"
 	       "\t-f\tRemove files without prompting; don't complain about non-existent files\n"
 	       "\t-r\tRemove directories recursively\n"
-	       "\t-d\tRemove empty directories\n");
+	       "\t-d\tRemove empty directories\n"
+	       "\t-v\tDisplay the names of the files that are being deleted\n"
+	       "\t-V\tDisplay version information and exit\n"
+	       "\t-h\tShow this help message and exit\n");
 }

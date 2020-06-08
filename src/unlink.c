@@ -74,6 +74,7 @@ void help (const char *progname)
 	printf("Usage: %s FILE\n\
 or:    %s OPTION\n", progname, progname);
 }
+
 void version (const char *progname)
 {
 	printf("Copyright (C) 2020 Jithin Renji\n"
