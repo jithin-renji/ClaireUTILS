@@ -112,6 +112,11 @@ int rm (const char *fname, int flags)
 	int unlink_flags = 0;
 
 	if (CHKF_RECURSIVE(flags) || CHKF_EMPTY_DIRS(flags)) {
+		if (strcmp(fname, "/") == 0) {
+			fprintf(stderr, "Refusing to remove `/`\n");
+			return -1;
+		}
+
 		unlink_flags = AT_REMOVEDIR;
 	}
 
