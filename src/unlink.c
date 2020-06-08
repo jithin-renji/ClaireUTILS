@@ -72,7 +72,11 @@ int main (int argc, char **argv)
 void help (const char *progname)
 {
 	printf("Usage: %s FILE\n\
-or:    %s OPTION\n", progname, progname);
+or:    %s OPTION\n\n", progname, progname);
+	
+	printf("Options:\n");
+	printf("\t--help\tShow this help message and help\n"
+	       "\t--version\tShow version information and help\n");
 }
 
 void version (const char *progname)
