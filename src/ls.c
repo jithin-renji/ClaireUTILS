@@ -360,4 +360,12 @@ void list (const char *dir_path, int flags)
 void help (const char *progname)
 {
 	printf("Usage: %s [OPTION]... [FILE]...\n\n", progname);
+
+	printf("Options:\n"
+	       "\t-l\tList all attributes of a file/directory (long listing)\n"
+	       "\t-a\tList files that start with '.' too\n"
+	       "\t-A\tSame as `-A` but don't list '.' and '..'\n"
+	       "\t-c, -C\tList in color\n"
+	       "\t-h\tShow file sizes in human readable formats\n"
+	       "\t-H\tShow this help message and exit\n");
 }
