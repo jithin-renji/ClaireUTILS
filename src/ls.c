@@ -33,9 +33,14 @@
 #include "general.h"
 
 void get_permissions (mode_t mode, char *out_str);
+
 void convert_to_month_word (char *month_num_str);
 void set_mdate (char *mdate_str, time_t mtime);
+
+void convert_to_human_rd (char *out_str, off_t nbytes);
+
 void list (const char *dir_path, int flags);
+
 void help (const char *progname);
 
 int main (int argc, char **argv)
@@ -43,7 +48,7 @@ int main (int argc, char **argv)
 	int flags = 0;
 	int opt = 0;
 
-	while ((opt = getopt(argc, argv, "lacCAH")) != -1) {
+	while ((opt = getopt(argc, argv, "lachCAH")) != -1) {
 		switch (opt) {
 		case 'l':
 			flags |= LS_LONG;
@@ -60,6 +65,10 @@ int main (int argc, char **argv)
 		case 'C':
 		case 'c':
 			flags |= LS_COLORED;
+			break;
+
+		case 'h':
+			flags |= LS_HUMAN_RD;
 			break;
 
 		case 'H':
@@ -236,6 +245,19 @@ void set_mdate (char *mdate_str, time_t mtime)
 	strcat(mdate_str, " ");
 	strcat(mdate_str, time);
 }
+
+void convert_to_human_rd (char *out_str, off_t nbytes)
+{
+	double human_rd_size = 0;
+	if (nbytes >= 1000 && nbytes < 1000 * 1000) {	
+		human_rd_size = (double) nbytes / 1000;
+		snprintf(out_str, 25, "%.2f", human_rd_size);
+		strcat(out_str, "K");
+	} else {
+		snprintf(out_str, 25, "%ld", nbytes);
+	}
+}
+
 void list (const char *dir_path, int flags)
 {
 	DIR *dir;
@@ -299,11 +321,17 @@ void list (const char *dir_path, int flags)
 		struct passwd *usr_info = getpwuid(uid);
 		struct group *grp_info = getgrgid(gid);
 
-		size_t fsize = statbuf.st_size;
+		char fsize_str[25];
 		char mdate[256];
 
 		get_permissions(mode, permissions);
 		set_mdate(mdate, statbuf.st_mtime);
+
+		if (CHKF_HUMAN_RD(flags)) {
+			convert_to_human_rd(fsize_str, statbuf.st_size);
+		} else {
+			snprintf(fsize_str, 25, "%ld", statbuf.st_size);
+		}
 
 		if (CHKF_COLORED(flags)) {
 			if (S_ISDIR(mode)) {
@@ -312,15 +340,16 @@ void list (const char *dir_path, int flags)
 		}
 
 		if (CHKF_LONG(flags)) {
-			printf("%s  %ld\t%s\t%s\t%ld\t%s\t", permissions,
+			printf("%s  %ld\t%s\t%s\t%s\t%s\t", permissions,
 					links, usr_info->pw_name,
-					grp_info->gr_name, fsize,
+					grp_info->gr_name, fsize_str,
 					mdate);
 		}
 
 		printf("%s%s\n" RESET , color, files[i]);
 
 		strcpy(mdate, "");
+		strcpy(fsize_str, "");
 
 		i += 1;
 	}

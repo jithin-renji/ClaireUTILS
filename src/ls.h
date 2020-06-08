@@ -26,10 +26,12 @@
 #define LS_ALL			1 << 1
 #define LS_ALL_NOT_DODD		1 << 2
 #define LS_COLORED		1 << 3
+#define LS_HUMAN_RD		1 << 4
 
 #define CHKF_LONG(flags) ((flags & LS_LONG) == LS_LONG)
 #define CHKF_ALL(flags) ((flags & LS_ALL) == LS_ALL)
 #define CHKF_ALL_NOT_DODD(flags) ((flags & LS_ALL_NOT_DODD) == LS_ALL_NOT_DODD)
 #define CHKF_COLORED(flags) ((flags & LS_COLORED) == LS_COLORED)
+#define CHKF_HUMAN_RD(flags) ((flags & LS_HUMAN_RD) == LS_HUMAN_RD)
 
 #endif	/* LS_H */
