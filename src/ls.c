@@ -251,10 +251,18 @@ void set_mdate (char *mdate_str, time_t mtime)
 void convert_to_human_rd (char *out_str, off_t nbytes)
 {
 	double human_rd_size = 0;
-	if (nbytes >= 1000 && nbytes < 1000 * 1000) {	
+	if (nbytes >= 1000 && nbytes < (long long) 1000 * 1000) {	
 		human_rd_size = (double) nbytes / 1000;
 		snprintf(out_str, 25, "%.1f", human_rd_size);
 		strcat(out_str, "K");
+	} else if (nbytes >= 1000 * 1000 && nbytes < (long long) 1000 * 1000 * 1000) {
+		human_rd_size = (double) nbytes / (1000 * 1000);
+		snprintf(out_str, 25, "%.1f", human_rd_size);
+		strcat(out_str, "M");
+	} else if (nbytes >= 1000 * 1000 * 1000 && nbytes < (long long) 1000 * 1000 * 1000 * 1000) {
+		human_rd_size = (double) nbytes / (1000 * 1000 * 1000);
+		snprintf(out_str, 25, "%.1f", human_rd_size);
+		strcat(out_str, "G");
 	} else {
 		snprintf(out_str, 25, "%ld", nbytes);
 	}
