@@ -102,7 +102,9 @@ void get_permissions(mode_t mode, char *out_str)
 	/* Check file type
 	 * TODO: Add support for socket and symbolic
 	 * 	 links too */
-	if (S_ISDIR(mode)) {
+	if (S_ISLNK(mode)) {
+		strcpy(out_str, "l");
+	} else if (S_ISDIR(mode)) {
 		strcpy(out_str, "d");
 	} else if (S_ISCHR(mode)) {
 		strcpy(out_str, "c");
@@ -299,7 +301,7 @@ void list (const char *dir_path, int flags)
 		strcat(full_fname, "/");
 		strcat(full_fname, files[i]);
 
-		int ret = stat(full_fname, &statbuf);
+		int ret = lstat(full_fname, &statbuf);
 		if (ret == -1) {
 			perror(full_fname);
 			exit(EXIT_FAILURE);
@@ -336,7 +338,11 @@ void list (const char *dir_path, int flags)
 		if (CHKF_COLORED(flags)) {
 			if (S_ISDIR(mode)) {
 				strcpy(color, B_BLUE);
-			}
+			} else if (S_ISLNK(mode)) {
+				strcpy(color, B_CYAN);
+			} else if (S_ISBLK(mode)) {
+				strcpy(color, B_YELLOW);
+			} 
 		}
 
 		if (CHKF_LONG(flags)) {
