@@ -251,7 +251,7 @@ void convert_to_human_rd (char *out_str, off_t nbytes)
 	double human_rd_size = 0;
 	if (nbytes >= 1000 && nbytes < 1000 * 1000) {	
 		human_rd_size = (double) nbytes / 1000;
-		snprintf(out_str, 25, "%.2f", human_rd_size);
+		snprintf(out_str, 25, "%.1f", human_rd_size);
 		strcat(out_str, "K");
 	} else {
 		snprintf(out_str, 25, "%ld", nbytes);
