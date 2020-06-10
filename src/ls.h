@@ -1,10 +1,10 @@
 /* ls.h: Defintions for the `ls` program */
 
 /*
- *	Copyright (C) 2020 Jithin Renji
+ *      Copyright (C) 2020 Jithin Renji
  *
- *	This program is free software: you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
+ *      This program is free software: you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
  *      the Free Software Foundation, either version 3 of the License, or
  *      (at your option) any later version.
  *
@@ -13,8 +13,8 @@
  *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *      GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *      You should have received a copy of the GNU General Public License
+ *      along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  * */
 
@@ -22,11 +22,11 @@
 #define LS_H
 
 /* Flags */
-#define LS_LONG			1
-#define LS_ALL			1 << 1
-#define LS_ALL_NOT_DODD		1 << 2
-#define LS_COLORED		1 << 3
-#define LS_HUMAN_RD		1 << 4
+#define LS_LONG                1
+#define LS_ALL                 1 << 1
+#define LS_ALL_NOT_DODD        1 << 2
+#define LS_COLORED             1 << 3
+#define LS_HUMAN_RD            1 << 4
 
 #define CHKF_LONG(flags) ((flags & LS_LONG) == LS_LONG)
 #define CHKF_ALL(flags) ((flags & LS_ALL) == LS_ALL)
@@ -34,4 +34,4 @@
 #define CHKF_COLORED(flags) ((flags & LS_COLORED) == LS_COLORED)
 #define CHKF_HUMAN_RD(flags) ((flags & LS_HUMAN_RD) == LS_HUMAN_RD)
 
-#endif	/* LS_H */
+#endif  /* LS_H */
