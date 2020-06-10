@@ -5,13 +5,13 @@
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation, either version 3 of the License, or
- *      (at your option) any later version.
+ *	the Free Software Foundation, either version 3 of the License, or
+ *	(at your option) any later version.
  *
- *      This program is distributed in the hope that it will be useful,
- *      but WITHOUT ANY WARRANTY; without even the implied warranty of
- *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *      GNU General Public License for more details.
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
  *
  *	You should have received a copy of the GNU General Public License
  *	along with this program.  If not, see <https://www.gnu.org/licenses/>.
@@ -22,6 +22,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <math.h>
+
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -251,16 +253,16 @@ void set_mdate (char *mdate_str, time_t mtime)
 void convert_to_human_rd (char *out_str, off_t nbytes)
 {
 	double human_rd_size = 0;
-	if (nbytes >= 1000 && nbytes < (long long) 1000 * 1000) {	
+	if (nbytes >= 1000 && nbytes < (long long) pow(1000, 2)) {
 		human_rd_size = (double) nbytes / 1000;
 		snprintf(out_str, 25, "%.1f", human_rd_size);
 		strcat(out_str, "K");
-	} else if (nbytes >= 1000 * 1000 && nbytes < (long long) 1000 * 1000 * 1000) {
-		human_rd_size = (double) nbytes / (1000 * 1000);
+	} else if (nbytes >= pow(1000, 2)  && nbytes < (long long) pow(1000, 3)) {
+		human_rd_size = (double) nbytes / pow(1000, 2);
 		snprintf(out_str, 25, "%.1f", human_rd_size);
 		strcat(out_str, "M");
-	} else if (nbytes >= 1000 * 1000 * 1000 && nbytes < (long long) 1000 * 1000 * 1000 * 1000) {
-		human_rd_size = (double) nbytes / (1000 * 1000 * 1000);
+	} else if (nbytes >= pow(1000, 3) && nbytes < (long long) pow(1000, 4)) {
+		human_rd_size = (double) nbytes / pow(1000, 3);
 		snprintf(out_str, 25, "%.1f", human_rd_size);
 		strcat(out_str, "G");
 	} else {

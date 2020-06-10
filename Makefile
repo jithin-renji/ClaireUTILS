@@ -49,7 +49,7 @@ rm: src/rm.c check_bin_dir
 	$(CC) src/rm.c $(CFLAGS) -o $(OUT_DIR)/rm
 
 ls: src/ls.c check_bin_dir
-	$(CC) src/ls.c $(CFLAGS) -o $(OUT_DIR)/ls
+	$(CC) src/ls.c $(CFLAGS) -lm -o $(OUT_DIR)/ls
 	@echo "Output dir: $(OUT_DIR)/"
 
 .PHONY: clean help
