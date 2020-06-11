@@ -9,7 +9,8 @@ SRC = src/cat.c \
       src/unlink.c \
       src/rm.c \
       src/ls.c \
-      src/touch.c
+      src/touch.c \
+      src/whoami.c
 
 ALL_BIN = cat \
 	  true \
@@ -19,7 +20,8 @@ ALL_BIN = cat \
 	  unlink \
 	  rm \
 	  ls \
-	  touch
+	  touch \
+	  whoami
 
 OUT_DIR = bin
 INSTALL_DIR = /usr/bin
@@ -55,6 +57,9 @@ ls: src/ls.c check_bin_dir
 
 touch: src/touch.c check_bin_dir
 	$(CC) src/touch.c $(CLFAGS) -o $(OUT_DIR)/touch
+
+whoami: src/whoami.c check_bin_dir
+	$(CC) src/whoami.c $(CFLAGS) -o $(OUT_DIR)/whoami
 	@echo "Output dir: $(OUT_DIR)/"
 
 .PHONY: clean help
