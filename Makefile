@@ -21,12 +21,14 @@ ALL_BIN = cat \
 	  rm \
 	  ls \
 	  touch \
-	  whoami
+	  whoami \
+	  pwd
 
 OUT_DIR = bin
 INSTALL_DIR = /usr/bin
 
 all: $(SRC) check_bin_dir $(ALL_BIN)
+	@echo "Output dir: $(OUT_DIR)/"
 
 check_bin_dir:
 	@if test -d bin; then printf ""; else mkdir bin; fi
@@ -60,7 +62,9 @@ touch: src/touch.c check_bin_dir
 
 whoami: src/whoami.c check_bin_dir
 	$(CC) src/whoami.c $(CFLAGS) -o $(OUT_DIR)/whoami
-	@echo "Output dir: $(OUT_DIR)/"
+
+pwd: src/pwd.c check_bin_dir	
+	$(CC) src/pwd.c $(CFLAGS) -o $(OUT_DIR)/pwd
 
 .PHONY: clean help
 
