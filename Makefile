@@ -8,7 +8,8 @@ SRC = src/cat.c \
       src/wc.c \
       src/unlink.c \
       src/rm.c \
-      src/ls.c
+      src/ls.c \
+      src/touch.c
 
 ALL_BIN = cat \
 	  true \
@@ -17,7 +18,8 @@ ALL_BIN = cat \
 	  wc \
 	  unlink \
 	  rm \
-	  ls
+	  ls \
+	  touch
 
 OUT_DIR = bin
 INSTALL_DIR = /usr/bin
@@ -50,6 +52,9 @@ rm: src/rm.c check_bin_dir
 
 ls: src/ls.c check_bin_dir
 	$(CC) src/ls.c $(CFLAGS) -lm -o $(OUT_DIR)/ls
+
+touch: src/touch.c check_bin_dir
+	$(CC) src/touch.c $(CLFAGS) -o $(OUT_DIR)/touch
 	@echo "Output dir: $(OUT_DIR)/"
 
 .PHONY: clean help
