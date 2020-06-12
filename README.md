@@ -1,4 +1,4 @@
-# JuliusUTILS
+# ClaireUTILS
 
 A readable alternative to GNU coreutils.
 

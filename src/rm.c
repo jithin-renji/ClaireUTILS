@@ -209,7 +209,7 @@ int rm_recursive (const char *fname)
 
 void version (const char *progname)
 {
-        printf("%s (JuliusUTILS) v0.1\n", progname);
+        printf("%s (ClaireUTILS) v0.1\n", progname);
 
         printf("Copyright (C) 2020 Jithin Renji\n"
 "License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\n"
