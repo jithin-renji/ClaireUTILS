@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -g
 
 SRC = src/cat.c \
       src/true.c \
@@ -10,7 +10,9 @@ SRC = src/cat.c \
       src/rm.c \
       src/ls.c \
       src/touch.c \
-      src/whoami.c
+      src/whoami.c \
+      src/pwd.c \
+      src/base32.c
 
 ALL_BIN = cat \
 	  true \
@@ -22,7 +24,8 @@ ALL_BIN = cat \
 	  ls \
 	  touch \
 	  whoami \
-	  pwd
+	  pwd \
+	  base32
 
 OUT_DIR = bin
 INSTALL_DIR = /usr/bin
@@ -66,7 +69,10 @@ whoami: src/whoami.c check_bin_dir
 pwd: src/pwd.c check_bin_dir	
 	$(CC) src/pwd.c $(CFLAGS) -o $(OUT_DIR)/pwd
 
-.PHONY: clean help
+base32: src/base32.c check_bin_dir
+	$(CC) src/base32.c $(CFLAGS) -o $(OUT_DIR)/base32
+
+.PHONY: clean install help
 
 clean:
 	rm -rf $(OUT_DIR)/
