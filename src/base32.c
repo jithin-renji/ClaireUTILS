@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 
 #include <unistd.h>
@@ -108,6 +109,8 @@ int open_and_encode (const char *fname)
         if (i != 0) {
                 base32_encode_and_print(block);
         }
+
+        puts("");
         return 0;
 }
 
@@ -120,18 +123,74 @@ void base32_encode_and_print (const char *str)
                 'Y', 'Z', '2', '3', '4', '5', '6', '7'
         };
 
-        if (strlen(str) == 5) {
-                long all_bits = 0;
+        int block_len = strlen(str);
 
-                for (int i = 0; i <= 4; i++) {
-                        long ch = (long) str[i];
-                        all_bits |= ch << (8 * (4 - i));
-                }
+        /* The block is stored here for actual use */
+        long all_bits = 0;
 
-                printf("all_bits: %ld\n", all_bits);
-        } else {
-                printf("IMPERFECT BLOCK!\n");
+        /* all_bits & INITIAL_MASK gives the first character */
+        const long INITIAL_MASK = 0x000000f800000000;
+
+        /* The final encoded string */
+        char encoded[9] = "";
+
+        memset(encoded, '\0', 9);
+
+        for (int i = 0; i <= 4; i++) {
+                long ch = (long) str[i];
+                all_bits |= ch << (8 * (4 - i));
         }
+
+        for (int i = 0; i < 8; i++) {
+                int b32_i = (all_bits & (INITIAL_MASK >> 5 * i)) >> (35 - (5 * i));
+                encoded[i] = base32_alphabet[b32_i];
+        }
+
+        /*
+         * For imperfect blocks, ie. blocks that are not exactly 40 bits
+         * long, we have to pad the output. These are the only possibilites,
+         * if the block happens to be imperfect:
+         *      - The block is exactly 8 bits long (ie. 1 char length). The
+         *        result will be 2 characters, followed by 6 '=' padding chars.
+         *
+         *      - The block is exactly 16 bits long (ie. 2 char length). The
+         *        result will be 4 characters, followed by 4 '=' padding chars.
+         *
+         *      - The block is exactly 32 bits long (ie. 3 char length). The
+         *        result will be 7 characters, followed by padding.
+         */
+        int j = 0;
+        switch (block_len) {
+        case 1:
+                j = 2;
+                break;
+
+        case 2:
+                j = 4;
+                break;
+
+        case 3:
+                j = 5;
+                break;
+
+        case 4:
+                j = 7;
+                break;
+
+        default:
+                /* The block is perfect, so we don't set `j` */
+                break;
+        }
+
+        /* Only if `j` has a value other than 0, it means that the block
+         * is imperfect. */
+        if (j != 0) {
+                for (int i = j; i < 8; i++) {
+                        encoded[i] = '=';
+                }
+        }
+
+        printf("%s", encoded);
 }
 
 void help (void)
