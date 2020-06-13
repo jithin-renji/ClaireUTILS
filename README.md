@@ -1,6 +1,6 @@
 # ClaireUTILS
 
-A readable alternative to GNU coreutils.
+An **extremely** minimal set of core utilities for Linux/UNIX like systems.
 
 ### Requirements
 
