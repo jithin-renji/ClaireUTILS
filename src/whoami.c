@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include <unistd.h>
+#include <sys/types.h>
 #include <getopt.h>
 #include <pwd.h>
 
