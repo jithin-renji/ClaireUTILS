@@ -244,7 +244,7 @@ int open_and_decode (const char *fname, bool f_is_stdin)
 
 void base32_decode_and_print (const char *str)
 {
-        printf("%s len: %ld", str, strlen(str));
+
 }
 
 void help (void)
