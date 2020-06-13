@@ -30,13 +30,18 @@
 char progname[256] = "";
 
 struct option long_opts[] = {
+        {"decode",      no_argument, 0, 'd'},
         {"help",        no_argument, 0, 'h'},
         {"version",     no_argument, 0, 'v'},
         {0,             0,           0,  0}
 };
 
 int open_and_encode (const char *fname, bool f_is_stdin);
-void base32_encode_and_print (const char *fname);
+void base32_encode_and_print (const char *str);
+
+int open_and_decode (const char *fname, bool f_is_stdin);
+void base32_decode_and_print (const char *str);
+
 void help (void);
 void version (void);
 
@@ -44,9 +49,13 @@ int main (int argc, char **argv)
 {
         strcpy(progname, argv[0]);
 
+        bool should_decode = false;
         int opt = 0;
-        while ((opt = getopt_long(argc, argv, "hv", long_opts, NULL)) != -1) {
+        while ((opt = getopt_long(argc, argv, "dhv", long_opts, NULL)) != -1) {
                 switch (opt) {
+                case 'd':
+                        should_decode = true;
+                        break;
                 case 'h':
                         help();
                         exit(EXIT_FAILURE);
@@ -64,31 +73,30 @@ int main (int argc, char **argv)
                 }
         }
 
-        /* Encode only one file. */
+        /* Encode/decode only one file. */
         if ((argc != optind + 1) && (argc != 1)) {
                 fprintf(stderr, "%s: Extra operand `%s`\n", progname, argv[optind]);
                 fprintf(stderr, "Try `%s --help` for more information.\n", progname);
                 exit(EXIT_FAILURE);
         }
 
-        bool input_is_stdin = argv[optind] == NULL ? true : false;
-        open_and_encode(argv[optind], input_is_stdin);
+        bool is_input_stdin = argv[optind] == NULL ? true : false;
+        if (!should_decode) {
+                open_and_encode(argv[optind], is_input_stdin);
+        } else {
+                open_and_decode(argv[optind], is_input_stdin);
+        }
 
         return 0;
 }
 
 int open_and_encode (const char *fname, bool f_is_stdin)
 {
-        int fd = -1;
-        if (f_is_stdin) {
-                fd = STDIN_FILENO;
-        } else {
-                fd = open(fname, O_RDONLY);
-                if (fd == -1) {
-                        fprintf(stderr, "%s: ", progname);
-                        perror(fname);
-                        return -1;
-                }
+        int fd = f_is_stdin ? STDIN_FILENO : open(fname, O_RDONLY);
+        if (fd == -1) {
+                fprintf(stderr, "%s: ", progname);
+                perror(fname);
+                return -1;
         }
 
         char block[6];
@@ -194,12 +202,58 @@ void base32_encode_and_print (const char *str)
         printf("%s", encoded);
 }
 
+int open_and_decode (const char *fname, bool f_is_stdin)
+{
+        int fd = f_is_stdin ? STDIN_FILENO : open(fname, O_RDONLY);
+        if (fd == -1) {
+                fprintf(stderr, "%s: ", progname);
+                perror(fname);
+                return -1;
+        }
+
+        int alloc_size = 8;
+        char *b32_str = malloc(alloc_size);
+        char *b32_str_ptr = b32_str;
+        int nwritten = 0;
+
+        int ch = 0;
+
+        memset(b32_str, '\0', alloc_size);
+
+        while (read(fd, &ch, 1) > 0) {
+                if (nwritten < 7) {
+                        *b32_str_ptr = ch;
+                        nwritten += 1;
+                        ++b32_str_ptr;
+                } else {
+                        alloc_size += 8;
+                        b32_str = realloc(b32_str, alloc_size);
+                        *b32_str_ptr = ch;
+                        nwritten += 1;
+                        ++b32_str_ptr;
+                }
+        }
+
+        *b32_str_ptr = '\0';
+        base32_decode_and_print(b32_str);
+
+        free(b32_str);
+
+        return 0;
+}
+
+void base32_decode_and_print (const char *str)
+{
+        printf("%s len: %ld", str, strlen(str));
+}
+
 void help (void)
 {
         printf("Usage: %s OPTION\n", progname);
         printf("   or: %s [FILE]\n\n", progname);
 
         printf("Options:\n"
+               "\t-d, --decode\tDecode FILE\n"
                "\t-h, --help\tShow this help message and exit\n"
                "\t-v, --version\tShow version information and exit\n");
 }
