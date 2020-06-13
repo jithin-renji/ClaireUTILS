@@ -35,7 +35,7 @@ struct option long_opts[] = {
         {0,             0,           0,  0}
 };
 
-int open_and_encode (const char *fname);
+int open_and_encode (const char *fname, bool f_is_stdin);
 void base32_encode_and_print (const char *fname);
 void help (void);
 void version (void);
@@ -64,30 +64,31 @@ int main (int argc, char **argv)
                 }
         }
 
-        if (argv[optind] == NULL) {
-                fprintf(stderr, "%s: STDIN input is not supported yet!\n", progname);
-                fprintf(stderr, "Try `%s --help` for more information.\n", progname);
-                exit(EXIT_FAILURE);
-        }
-
-        if (argc != optind + 1) {
+        /* Encode only one file. */
+        if ((argc != optind + 1) && (argc != 1)) {
                 fprintf(stderr, "%s: Extra operand `%s`\n", progname, argv[optind]);
                 fprintf(stderr, "Try `%s --help` for more information.\n", progname);
                 exit(EXIT_FAILURE);
         }
 
-        open_and_encode(argv[optind]);
+        bool input_is_stdin = argv[optind] == NULL ? true : false;
+        open_and_encode(argv[optind], input_is_stdin);
 
         return 0;
 }
 
-int open_and_encode (const char *fname)
+int open_and_encode (const char *fname, bool f_is_stdin)
 {
-        int fd = open(fname, O_RDONLY);
-        if (fd == -1) {
-                fprintf(stderr, "%s: ", progname);
-                perror(fname);
-                return -1;
+        int fd = -1;
+        if (f_is_stdin) {
+                fd = STDIN_FILENO;
+        } else {
+                fd = open(fname, O_RDONLY);
+                if (fd == -1) {
+                        fprintf(stderr, "%s: ", progname);
+                        perror(fname);
+                        return -1;
+                }
         }
 
         char block[6];
@@ -195,7 +196,8 @@ void base32_encode_and_print (const char *str)
 
 void help (void)
 {
-        printf("Usage: %s [OPTION]\n\n", progname);
+        printf("Usage: %s OPTION\n", progname);
+        printf("   or: %s [FILE]\n\n", progname);
 
         printf("Options:\n"
                "\t-h, --help\tShow this help message and exit\n"
