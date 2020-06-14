@@ -18,6 +18,9 @@
  *
  * */
 
+ /* NOTE: At the moment, the approach used in this program seems to work
+  * only for ASCII text files. */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
