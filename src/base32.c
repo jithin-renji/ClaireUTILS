@@ -36,6 +36,10 @@ struct option long_opts[] = {
         {0,             0,           0,  0}
 };
 
+const char base32_alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+
+int b32_get_index (char ch);
+
 int open_and_encode (const char *fname, bool f_is_stdin);
 void base32_encode_and_print (const char *str);
 
@@ -74,7 +78,7 @@ int main (int argc, char **argv)
         }
 
         /* Encode/decode only one file. */
-        if ((argc != optind + 1) && (argc != 1)) {
+        if ((argc != optind + 1) && (argc != 1) && (!should_decode)) {
                 fprintf(stderr, "%s: Extra operand `%s`\n", progname, argv[optind]);
                 fprintf(stderr, "Try `%s --help` for more information.\n", progname);
                 exit(EXIT_FAILURE);
@@ -88,6 +92,22 @@ int main (int argc, char **argv)
         }
 
         return 0;
+}
+
+int b32_get_index (char ch)
+{
+        int i = 0;
+        while (base32_alphabet[i] != '\0') {
+                if (ch == base32_alphabet[i]) {
+                        return i;
+                }
+                else
+                        i += 1;
+        }
+
+        /* If we still haven't returned, it means
+         * that the input is invalid. */
+        return -1;
 }
 
 int open_and_encode (const char *fname, bool f_is_stdin)
@@ -125,19 +145,12 @@ int open_and_encode (const char *fname, bool f_is_stdin)
 
 void base32_encode_and_print (const char *str)
 {
-        char base32_alphabet[] = {
-                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
-                'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-                'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
-                'Y', 'Z', '2', '3', '4', '5', '6', '7'
-        };
-
         int block_len = strlen(str);
 
         /* The block is stored here for actual use */
         long all_bits = 0;
 
-        /* all_bits & INITIAL_MASK gives the first character */
+        /* all_bits & INITIAL_MASK gives the first index */
         const long INITIAL_MASK = 0x000000f800000000;
 
         /* The final encoded string */
@@ -211,40 +224,49 @@ int open_and_decode (const char *fname, bool f_is_stdin)
                 return -1;
         }
 
-        int alloc_size = 8;
-        char *b32_str = malloc(alloc_size);
-        char *b32_str_ptr = b32_str;
-        int nwritten = 0;
-
-        int ch = 0;
-
-        memset(b32_str, '\0', alloc_size);
-
-        while (read(fd, &ch, 1) > 0) {
-                if (nwritten < 7) {
-                        *b32_str_ptr = ch;
-                        nwritten += 1;
-                        ++b32_str_ptr;
-                } else {
-                        alloc_size += 8;
-                        b32_str = realloc(b32_str, alloc_size);
-                        *b32_str_ptr = ch;
-                        nwritten += 1;
-                        ++b32_str_ptr;
-                }
+        char block[9] = "";
+        memset(block, '\0', 9);
+        while (read(fd, block, 8) == 8) {
+                base32_decode_and_print(block);
         }
-
-        *b32_str_ptr = '\0';
-        base32_decode_and_print(b32_str);
-
-        free(b32_str);
 
         return 0;
 }
 
 void base32_decode_and_print (const char *str)
 {
+        const char *str_ptr = str;
 
+        /* Analogous to the use case of `all_bits`
+         * in `base32_encode_and_print()` */
+        long all_bits = 0;
+
+        /* (all_bits & INITIAL_MASK) >> 32 gives the first character */
+        const long INITIAL_MASK = 0x00000ff00000000;
+
+        /* Numbers of chars n_traversed in the block */
+        int n_traversed = 0;
+
+        while (*str_ptr != '\0' && *str_ptr != '=') {
+                long i = b32_get_index(*str_ptr);
+                if (i == -1) {
+                        fprintf(stderr, "%s: Invalid input\n", progname);
+                        exit(EXIT_FAILURE);
+                }
+
+                all_bits |= i << (35 - (5 * n_traversed));
+                n_traversed += 1;
+                ++str_ptr;
+        }
+
+        char decoded[6];
+        memset(decoded, '\0', 6);
+
+        for (int i = 0; i < 6; i++) {
+                decoded[i] = (all_bits & (INITIAL_MASK >> (8 * i))) >> (32 - (8 * i));
+        }
+
+        printf("%s", decoded);
 }
 
 void help (void)
