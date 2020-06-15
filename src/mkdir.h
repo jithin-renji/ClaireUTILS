@@ -1,4 +1,4 @@
-/* foobar.h: Description */
+/* mkdir.h: Defintions for the `mkdir` program */
 
 /*
  *      Copyright (C) 2020 Jithin Renji
