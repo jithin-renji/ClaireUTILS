@@ -168,7 +168,8 @@ int move_files_into_dir (struct node *files, const char *dir_name)
 
 void help (void)
 {
-        printf("Usage: %s [OPTION]... DIRECTORY...\n\n", progname);
+        printf("Usage: %s [OPTION] FILE1 FILE2\n", progname);
+        printf("   or: %s [OPTION] FILE... DIRECTORY\n\n", progname);
 
         printf("Options:\n"
                "\t-v, --verbose\tPrint a message for every file that is being moved\n"
