@@ -157,7 +157,7 @@ void help (void)
                "\t-a, --atime-only\tOnly change the access time\n"
                "\t-m, --mtime-only\tOnly change the modification time\n"
                "\t-c, --no-create\t\tDo not create new file if FILE does not exist\n"
-               "\t-h, --no-dereference\t\tDo not follow symbolic links\n"
+               "\t-h, --no-dereference\tDo not follow symbolic links\n"
                "\t-H, --help\t\tShow this help message and exit\n"
                "\t-v, --version\t\tShow version information and exit\n");
 }
