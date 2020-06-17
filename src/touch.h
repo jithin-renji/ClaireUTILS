@@ -25,10 +25,12 @@
 #define ATIME_ONLY      1
 #define MTIME_ONLY      1 << 1
 #define NO_CREATE       1 << 2
+#define NO_DEREFERENCE  1 << 3
 
 /* Check flags macros */
 #define CHKF_ATIME_ONLY(flags) ((flags & ATIME_ONLY) == ATIME_ONLY)
 #define CHKF_MTIME_ONLY(flags) ((flags & MTIME_ONLY) == MTIME_ONLY)
 #define CHKF_NO_CREATE(flags) ((flags & NO_CREATE) == NO_CREATE)
+#define CHKF_NO_DEREFERENCE(flags) ((flags & NO_DEREFERENCE) == NO_DEREFERENCE)
 
 #endif  /* TOUCH_H */
