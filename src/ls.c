@@ -31,7 +31,10 @@
 #include <grp.h>
 #include <dirent.h>
 
+#include <linux/limits.h>
+
 #include "ls.h"
+#include "linked_list.h"
 #include "general.h"
 
 void get_permissions (mode_t mode, char *out_str);
@@ -273,10 +276,10 @@ void convert_to_human_rd (char *out_str, off_t nbytes)
 void list (const char *dir_path, int flags)
 {
         DIR *dir;
-        char files[200][256];
+        struct node *files = malloc(sizeof(struct node));
         struct dirent *dp;
-        int nfinished = 0;
 
+        node_init(files);
         dir = opendir(dir_path);
 
         if (dir == NULL) {
@@ -296,20 +299,18 @@ void list (const char *dir_path, int flags)
                         /* Do nothing */
 
                 } else {
-                        strcpy(files[nfinished], dp->d_name);
-                        nfinished += 1;
+                        list_append(files, dp->d_name);
                 }
         }
 
-        int i = 0;
-        while (i < nfinished) {
+        struct node *file = files;
+        while (file != NULL) {
                 struct stat statbuf;
 
-                /* FIXME: Allocate memory dynamically */
-                char full_fname[256] = "";
+                char full_fname[PATH_MAX] = "";
                 strcat(full_fname, dir_path);
                 strcat(full_fname, "/");
-                strcat(full_fname, files[i]);
+                strcat(full_fname, file->str);
 
                 int ret = lstat(full_fname, &statbuf);
                 if (ret == -1) {
@@ -362,14 +363,15 @@ void list (const char *dir_path, int flags)
                                         mdate);
                 }
 
-                printf("%s%s\n" RESET , color, files[i]);
+                printf("%s%s\n" RESET , color, file->str);
 
                 strcpy(mdate, "");
                 strcpy(fsize_str, "");
 
-                i += 1;
+                file = file->next;
         }
 
+        list_destroy(files);
         closedir(dir);
 }
 

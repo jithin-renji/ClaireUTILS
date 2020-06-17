@@ -9,11 +9,13 @@ SRC = src/cat.c \
       src/unlink.c \
       src/rm.c \
       src/ls.c \
+      src/linked_list.c \
       src/touch.c \
       src/whoami.c \
       src/pwd.c \
       src/base32.c \
-      src/mkdir.c
+      src/mkdir.c \
+      src/mv.c
 
 ALL_BIN = cat \
 	  true \
@@ -27,7 +29,8 @@ ALL_BIN = cat \
 	  whoami \
 	  pwd \
 	  base32 \
-	  mkdir
+	  mkdir \
+	  mv
 
 OUT_DIR = bin
 INSTALL_DIR = /usr/bin
@@ -60,7 +63,7 @@ rm: src/rm.c check_bin_dir
 	$(CC) src/rm.c $(CFLAGS) -o $(OUT_DIR)/rm
 
 ls: src/ls.c check_bin_dir
-	$(CC) src/ls.c $(CFLAGS) -lm -o $(OUT_DIR)/ls
+	$(CC) src/ls.c src/linked_list.c $(CFLAGS) -lm -o $(OUT_DIR)/ls
 
 touch: src/touch.c check_bin_dir
 	$(CC) src/touch.c $(CLFAGS) -o $(OUT_DIR)/touch
@@ -76,6 +79,9 @@ base32: src/base32.c check_bin_dir
 
 mkdir: src/mkdir.c check_bin_dir
 	$(CC) src/mkdir.c $(CFLAGS) -o $(OUT_DIR)/mkdir
+
+mv: src/mv.c check_bin_dir
+	$(CC) src/mv.c $(CFLAGS) -o $(OUT_DIR)/mv
 
 .PHONY: clean install help
 
