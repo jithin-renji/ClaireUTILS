@@ -87,44 +87,23 @@ int main (int argc, char **argv)
 
         /* The command is in the form mv [OPTION]... FILE1 FILE2 */
         if (argc - optind == 2) {
-                char out_file[PATH_MAX] = "";
-                strcpy(out_file, argv[optind + 1]);
-
-                int fd_orig = open(argv[optind], O_RDWR);
-                int fd_ren = open(argv[optind + 1], O_RDWR);
-
-                if (fd_orig == -1) {
+                int fd = open(argv[optind], O_RDONLY);
+                if (fd == -1) {
                         fprintf(stderr, "%s: `%s`: ", progname, argv[optind]);
                         perror("");
-                        close(fd_orig);
-
                         exit(EXIT_FAILURE);
                 }
 
-                if (fd_ren == -1 && errno == EISDIR) {
-                        strcat(out_file, "/");
-                        strcat(out_file, argv[optind]);
-                } else if (fd_ren == -1) { /* errno != EISDIR */
-                        fprintf(stderr, "%s: `%s`: ", progname, argv[optind + 1]);
-                        perror("");
-                        close(fd_ren);
-
-                        exit(EXIT_FAILURE);
-                }
-
-                close(fd_orig);
-                close(fd_ren);
-
-                int ret = rename(argv[optind], out_file);
+                int ret = rename(argv[optind], argv[optind + 1]);
                 if (ret == -1) {
                         fprintf(stderr, "%s: Could not move `%s` to `%s`: ",
-                                progname, argv[optind], out_file);
+                                progname, argv[optind], argv[optind + 1]);
                         perror("");
                         exit(EXIT_FAILURE);
                 }
 
                 if (CHKF_MV_VERBOSE(flags))
-                        printf("Moved `%s` to `%s`\n", argv[optind], out_file);
+                        printf("Moved `%s` to `%s`\n", argv[optind], argv[optind + 1]);
         } else {
                 const char *dir_name = argv[argc - 1];
                 struct node *files = malloc(sizeof(struct node));
