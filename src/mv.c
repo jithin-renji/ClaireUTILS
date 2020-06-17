@@ -21,12 +21,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include <unistd.h>
 #include <fcntl.h>
 #include <getopt.h>
 
+#include <linux/limits.h>
+
 #include "mv.h"
+#include "linked_list.h"
 
 char progname[256] = "";
 
@@ -37,18 +41,13 @@ struct option long_opts[] = {
         {0,             0,           0,  0}
 };
 
+int move_files_into_dir (struct node *files_list, const char *dir_name);
 void help (void);
 void version (void);
 
 int main (int argc, char **argv)
 {
         strcpy(progname, argv[0]);
-
-        if (argc < 3) {
-                fprintf(stderr, "%s: Too few arguments\n", progname);
-                fprintf(stderr, "Try `%s --help` for more information.\n", progname);
-                exit(EXIT_FAILURE);
-        }
 
         int flags = 0;
         int opt = 0;
@@ -74,6 +73,12 @@ int main (int argc, char **argv)
                 }
         }
 
+        if (argc < 3) {
+                fprintf(stderr, "%s: Too few arguments\n", progname);
+                fprintf(stderr, "Try `%s --help` for more information.\n", progname);
+                exit(EXIT_FAILURE);
+        }
+
         if (argv[optind] == NULL || argc < 3) {
                 fprintf(stderr, "%s: Missing operand\n", progname);
                 fprintf(stderr, "Try `%s --help` for more information.\n", progname);
@@ -82,27 +87,101 @@ int main (int argc, char **argv)
 
         /* The command is in the form mv [OPTION]... FILE1 FILE2 */
         if (argc - optind == 2) {
-                int fd = open(argv[optind], O_RDONLY);
+                char out_file[PATH_MAX] = "";
+                strcpy(out_file, argv[optind + 1]);
 
-                if (fd == -1) {
+                int fd_orig = open(argv[optind], O_RDWR);
+                int fd_ren = open(argv[optind + 1], O_RDWR);
+
+                if (fd_orig == -1) {
                         fprintf(stderr, "%s: `%s`: ", progname, argv[optind]);
                         perror("");
-                        close(fd);
+                        close(fd_orig);
 
                         exit(EXIT_FAILURE);
                 }
 
-                close(fd);
+                if (fd_ren == -1 && errno == EISDIR) {
+                        strcat(out_file, "/");
+                        strcat(out_file, argv[optind]);
+                } else if (fd_ren == -1) { /* errno != EISDIR */
+                        fprintf(stderr, "%s: `%s`: ", progname, argv[optind + 1]);
+                        perror("");
+                        close(fd_ren);
 
-                int ret = rename(argv[optind], argv[optind + 1]);
+                        exit(EXIT_FAILURE);
+                }
+
+                close(fd_orig);
+                close(fd_ren);
+
+                int ret = rename(argv[optind], out_file);
                 if (ret == -1) {
-                        fprintf(stderr, "%s: ", progname);
+                        fprintf(stderr, "%s: Could not move `%s` to `%s`: ",
+                                progname, argv[optind], out_file);
                         perror("");
                         exit(EXIT_FAILURE);
                 }
 
                 if (CHKF_MV_VERBOSE(flags))
-                        printf("Renamed `%s` to `%s`\n", argv[optind], argv[optind + 1]);
+                        printf("Moved `%s` to `%s`\n", argv[optind], out_file);
+        } else {
+                const char *dir_name = argv[argc - 1];
+                struct node *files = malloc(sizeof(struct node));
+
+                node_init(files);
+
+                for (int i = optind; i < argc - 1; i++) {
+                        list_append(files, argv[i]);
+                }
+
+                move_files_into_dir(files, dir_name);
+                list_destroy(files);
+        }
+
+        return 0;
+}
+
+int move_files_into_dir (struct node *files, const char *dir_name)
+{
+        struct node *file = files;
+        while (file != NULL) {
+                int fd = open(file->str, O_RDONLY);
+                if (fd == -1) {
+                        fprintf(stderr, "%s: `%s`: ", progname, file->str);
+                        perror("");
+                        return -1;
+                }
+
+                close(fd);
+                file = file->next;
+        }
+
+        int dir_fd = open(dir_name, O_RDONLY | O_DIRECTORY);
+        if (dir_fd == -1) {
+                fprintf(stderr, "%s: `%s`: ", progname, dir_name);
+                perror("");
+                return -1;
+        }
+        close(dir_fd);
+
+        file = files;
+        while (file != NULL) {
+                char renamed_fname[PATH_MAX];
+                strcpy(renamed_fname, dir_name);
+                strcat(renamed_fname, "/");
+                strcat(renamed_fname, file->str);
+
+                int ret = rename(file->str, renamed_fname);
+                if (ret == -1) {
+                        fprintf(stderr, "%s: Could not move `%s` to `%s`:",
+                                progname, file->str, renamed_fname);
+                        
+                        perror("");
+                        return -1;
+                }
+
+                file = file->next;
         }
 
         return 0;
@@ -113,6 +192,7 @@ void help (void)
         printf("Usage: %s [OPTION]... DIRECTORY...\n\n", progname);
 
         printf("Options:\n"
+               "\t-v, --verbose\tPrint a message for every file that is being moved\n"
                "\t-h, --help\tShow this help message and exit\n"
                "\t-V, --version\tShow version information and exit\n");
 }

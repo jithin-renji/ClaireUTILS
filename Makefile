@@ -81,7 +81,7 @@ mkdir: src/mkdir.c check_bin_dir
 	$(CC) src/mkdir.c $(CFLAGS) -o $(OUT_DIR)/mkdir
 
 mv: src/mv.c check_bin_dir
-	$(CC) src/mv.c $(CFLAGS) -o $(OUT_DIR)/mv
+	$(CC) src/mv.c src/linked_list.c $(CFLAGS) -o $(OUT_DIR)/mv
 
 .PHONY: clean install help
 
