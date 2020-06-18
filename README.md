@@ -1,6 +1,6 @@
 # ClaireUTILS
 
-An **extremely** minimal set of core utilities for Linux/UNIX like systems.
+An **extremely** minimal set of core utilities for Linux systems.
 
 ### Requirements
 
