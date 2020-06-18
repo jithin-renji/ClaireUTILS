@@ -12,3 +12,11 @@ An **extremely** minimal set of core utilities for Linux systems.
 Run `make` to build all programs. To build a specific program,
 run `make <program>` . For example, to build 'ls', one would run `make ls`.
 Run `make help` to see the list of all available targets.
+
+### Note
+ClaireUTILS is still in its early stages of development. It is prone to
+unnoticed bugs and such.
+
+### License
+ClaireUTILS is licenced under the GNU GPLv3. See "COPYING" for more
+information.
