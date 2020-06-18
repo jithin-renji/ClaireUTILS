@@ -26,6 +26,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <getopt.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include <linux/limits.h>
 
@@ -41,7 +43,8 @@ struct option long_opts[] = {
         {0,             0,           0,  0}
 };
 
-int move_files_into_dir (struct node *files_list, const char *dir_name);
+int move_files_into_dir (struct node *files_list, const char *dir_name,
+                         int flags);
 void help (void);
 void version (void);
 
@@ -87,23 +90,51 @@ int main (int argc, char **argv)
 
         /* The command is in the form mv [OPTION]... FILE1 FILE2 */
         if (argc - optind == 2) {
-                int fd = open(argv[optind], O_RDONLY);
-                if (fd == -1) {
-                        fprintf(stderr, "%s: `%s`: ", progname, argv[optind]);
+                struct stat in_statbuf;
+                struct stat out_statbuf;
+
+                char in_file[PATH_MAX] = "";
+                char out_file[PATH_MAX] = "";
+
+                strcpy(in_file, argv[optind]);
+                strcpy(out_file, argv[optind + 1]);
+
+                int in_stat_ret = stat(in_file, &in_statbuf);
+                int out_stat_ret = stat(out_file, &out_statbuf);
+
+                if (in_stat_ret == -1) {
+                        fprintf(stderr, "%s: '%s': ", progname, in_file);
+                        perror("");
+                        exit(EXIT_FAILURE);
+                } else if (out_stat_ret == -1 && errno != ENOENT) {
+                        fprintf(stderr, "%s: '%s': ", progname, out_file);
                         perror("");
                         exit(EXIT_FAILURE);
                 }
 
-                int ret = rename(argv[optind], argv[optind + 1]);
-                if (ret == -1) {
-                        fprintf(stderr, "%s: Could not move `%s` to `%s`: ",
-                                progname, argv[optind], argv[optind + 1]);
+                /* If the output file/dir does not exist, we can't
+                 * really check if the output is a directory or not.
+                 * So, this is set to -1, if `out_file` does not exist */
+                mode_t out_mode = out_stat_ret == -1 ? -1 : out_statbuf.st_mode;
+
+                if (S_ISDIR(out_mode)) {
+                        strcat(out_file, "/");
+                        strcat(out_file, in_file);
+                }
+
+                int mv_ret = rename(in_file, out_file);
+                if (mv_ret == -1) {
+                        fprintf(stderr, "%s: Could not move '%s' to '%s': ",
+                                progname, in_file, out_file);
+
                         perror("");
                         exit(EXIT_FAILURE);
                 }
 
-                if (CHKF_MV_VERBOSE(flags))
-                        printf("Moved `%s` to `%s`\n", argv[optind], argv[optind + 1]);
+                if (CHKF_MV_VERBOSE(flags)) {
+                        printf("Moved '%s' to '%s'\n", in_file, out_file);
+                }
+
         } else {
                 const char *dir_name = argv[argc - 1];
                 struct node *files = malloc(sizeof(struct node));
@@ -114,14 +145,15 @@ int main (int argc, char **argv)
                         list_append(files, argv[i]);
                 }
 
-                move_files_into_dir(files, dir_name);
+                move_files_into_dir(files, dir_name, flags);
                 list_destroy(files);
         }
 
         return 0;
 }
 
-int move_files_into_dir (struct node *files, const char *dir_name)
+int move_files_into_dir (struct node *files, const char *dir_name,
+                         int flags)
 {
         struct node *file = files;
         while (file != NULL) {
@@ -158,6 +190,11 @@ int move_files_into_dir (struct node *files, const char *dir_name)
                         
                         perror("");
                         return -1;
+                }
+
+                if (CHKF_MV_VERBOSE(flags)) {
+                        printf("Moved '%s' to '%s'\n",
+                                file->str, renamed_fname);
                 }
 
                 file = file->next;
