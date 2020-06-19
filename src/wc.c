@@ -130,23 +130,21 @@ int wc (const char *fname, int flags)
                 byte_count += 1;
         }
 
-        if (CHKF_WC_ALL_FLAGS(flags)) {
+        if (CHKF_WC_ALL_FLAGS(flags))
                 printf("  ");
-        }
 
-        if (CHKF_WC_LINES(flags)) {
+        if (CHKF_WC_LINES(flags))
                 printf("%ld  ", line_count);
-        }
 
-        if (CHKF_WC_WORDS(flags)) {
+
+        if (CHKF_WC_WORDS(flags))
                 printf("%ld  ", word_count);
-        }
 
-        if (CHKF_WC_BYTES(flags)) {
+        if (CHKF_WC_BYTES(flags))
                 printf("%ld  ", byte_count);
-        }
 
-        printf("  %s\n", fname);
+        if (strcmp(fname, "-") != 0)
+                printf("  %s\n", fname);
 
         close(fd);
         return 0;
@@ -159,6 +157,7 @@ void help (void)
         printf("Options:\n"
                "\t-c, --bytes\tPrint byte count\n"
                "\t-l, --lines\tPrint line count\n"
+               "\t-w, --words\tPrint word count\n"
                "\t-h, --help\tShow this help message and exit\n"
                "\t-V, --version\tShow version information and exit\n");
 }
