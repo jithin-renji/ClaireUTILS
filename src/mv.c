@@ -37,6 +37,7 @@
 char progname[256] = "";
 
 struct option long_opts[] = {
+        {"force",       no_argument, 0, 'f'},
         {"verbose",     no_argument, 0, 'v'},
         {"help",        no_argument, 0, 'h'},
         {"version",     no_argument, 0, 'V'},
@@ -54,8 +55,12 @@ int main (int argc, char **argv)
 
         int flags = 0;
         int opt = 0;
-        while ((opt = getopt_long(argc, argv, "vhV", long_opts, NULL)) != -1) {
+        while ((opt = getopt_long(argc, argv, "fvhV", long_opts, NULL)) != -1) {
                 switch (opt) {
+                case 'f':
+                        flags |= MV_FORCE;
+                        break;
+
                 case 'v':
                         flags |= MV_VERBOSE;
                         break;
@@ -209,6 +214,7 @@ void help (void)
         printf("   or: %s [OPTION] FILE... DIRECTORY\n\n", progname);
 
         printf("Options:\n"
+               "\t-f, --force\tDo not prompt before overwriting\n"
                "\t-v, --verbose\tPrint a message for every file that is being moved\n"
                "\t-h, --help\tShow this help message and exit\n"
                "\t-V, --version\tShow version information and exit\n");

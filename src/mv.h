@@ -23,8 +23,10 @@
 
 /* Flags */
 #define MV_VERBOSE              1
+#define MV_FORCE                1 << 1
 
 /* Check flag macros */
 #define CHKF_MV_VERBOSE(flags) ((flags & MV_VERBOSE) == MV_VERBOSE)
+#define CHKF_MV_FORCE(flags) ((flags & MV_FORCE) == MV_FORCE)
 
 #endif	/* PROG_H */
