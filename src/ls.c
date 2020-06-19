@@ -80,7 +80,6 @@ int main (int argc, char **argv)
                         help(argv[0]);
                         exit(EXIT_SUCCESS);
                         break;
-                
                 default:
                         printf("Try `%s -H` for more information.\n",
                                 argv[0]);
@@ -285,7 +284,7 @@ void list (const char *dir_path, int flags)
                 perror(dir_path);
                 exit(EXIT_FAILURE);
         }
-        
+
         while ((dp = readdir(dir)) != NULL) {
                 if (CHKF_ALL_NOT_DODD(flags) && (strcmp(dp->d_name, ".") == 0
                            || strcmp(dp->d_name, "..") == 0)) {
@@ -304,6 +303,11 @@ void list (const char *dir_path, int flags)
 
         struct node *file = files;
         while (file != NULL) {
+                if (strcmp(file->str, "") == 0) {
+                        file = file->next;
+                        continue;
+                }
+
                 struct stat statbuf;
 
                 char full_fname[PATH_MAX] = "";
@@ -325,7 +329,7 @@ void list (const char *dir_path, int flags)
                  * the color specified in this string
                  * will be used */
                 char color[10] = "";
-                
+
                 mode_t mode = statbuf.st_mode;
                 size_t links = statbuf.st_nlink;
                 uid_t uid = statbuf.st_uid;
@@ -352,7 +356,7 @@ void list (const char *dir_path, int flags)
                                 strcpy(color, B_CYAN);
                         } else if (S_ISBLK(mode)) {
                                 strcpy(color, B_YELLOW);
-                        } 
+                        }
                 }
 
                 if (CHKF_LONG(flags)) {
