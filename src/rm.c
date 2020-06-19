@@ -35,7 +35,7 @@ int rm (const char *fname, int flags);
 
 /* This function is called when deleting
  * directories recursively */
-int rm_recursive(const char *fname);
+int rm_recursive(const char *fname, int flags);
 
 void help (const char *progname);
 void version (const char *progname);
@@ -134,7 +134,7 @@ int rm (const char *fname, int flags)
         }
 
         if (CHKF_RECURSIVE(flags)) {
-                ret_val = rm_recursive(fname);
+                ret_val = rm_recursive(fname, flags);
         } else if (resp[0] == 'y' || resp[0] == 'Y') {
                 ret_val = unlinkat(AT_FDCWD, fname, unlink_flags);
         
@@ -147,7 +147,7 @@ int rm (const char *fname, int flags)
         return ret_val;
 }
 
-int rm_recursive (const char *fname)
+int rm_recursive (const char *fname, int flags)
 {
         DIR *dir_stream = opendir(fname);
         int ret_val = 0;
@@ -174,16 +174,18 @@ int rm_recursive (const char *fname)
                         if (S_ISDIR(mode)) {
                                 ret_val = unlinkat(AT_FDCWD, fpath, AT_REMOVEDIR);
 
-                                if (ret_val == -1 && errno != ENOTEMPTY && errno != ENOTDIR) {
-                                        perror(fpath);
+                                if (ret_val == -1 && errno != ENOTEMPTY
+                                 && errno != ENOTDIR) {
+                                        if (!CHKF_FORCE(flags))
+                                                perror(fpath);
                                 } else if (ret_val == -1 && errno == ENOTEMPTY) {
-                                        rm_recursive(fpath);
+                                        rm_recursive(fpath, flags);
                                 } else if (ret_val == -1 && errno == ENOTDIR) {
                                         ret_val = unlinkat(AT_FDCWD, fpath, 0);
                                 }
                         } else {
                                 ret_val = unlinkat(AT_FDCWD, fpath, 0);
-                                if (ret_val == -1) {
+                                if (ret_val == -1 && !CHKF_FORCE(flags)) {
                                         perror(fpath);
                                 }
                         }
@@ -192,12 +194,12 @@ int rm_recursive (const char *fname)
                 }
 
                 ret_val = unlinkat(AT_FDCWD, fpath, AT_REMOVEDIR);
-                if (ret_val == -1) {
+                if (ret_val == -1 && !CHKF_FORCE(flags)) {
                         perror(fpath);
                 }
         } else {
                 ret_val = unlinkat(AT_FDCWD, fpath, 0);
-                if (ret_val == -1) {
+                if (ret_val == -1 && !CHKF_FORCE(flags)) {
                         perror(fpath);
                 }
         }
