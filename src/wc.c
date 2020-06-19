@@ -144,8 +144,9 @@ int wc (const char *fname, int flags)
                 printf("%ld  ", byte_count);
 
         if (strcmp(fname, "-") != 0)
-                printf("  %s\n", fname);
+                printf("  %s", fname);
 
+        puts("");
         close(fd);
         return 0;
 }
