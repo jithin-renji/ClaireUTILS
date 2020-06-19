@@ -349,6 +349,10 @@ void list (const char *dir_path, int flags)
                         snprintf(fsize_str, 25, "%ld", statbuf.st_size);
                 }
 
+                int usr_x = (mode & S_IXUSR) == S_IXUSR;
+                int grp_x = (mode & S_IXGRP) == S_IXGRP;
+                int oth_x = (mode & S_IXOTH) == S_IXOTH;
+
                 if (CHKF_COLORED(flags)) {
                         if (S_ISDIR(mode)) {
                                 strcpy(color, B_BLUE);
@@ -356,6 +360,8 @@ void list (const char *dir_path, int flags)
                                 strcpy(color, B_CYAN);
                         } else if (S_ISBLK(mode)) {
                                 strcpy(color, B_YELLOW);
+                        } else if (usr_x || grp_x || oth_x) {
+                                strcpy(color, B_GREEN);
                         }
                 }
 
