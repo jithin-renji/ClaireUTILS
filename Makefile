@@ -15,7 +15,8 @@ SRC = src/cat.c \
       src/pwd.c \
       src/base32.c \
       src/mkdir.c \
-      src/mv.c
+      src/mv.c \
+      src/cp.c
 
 ALL_BIN = cat \
 	  true \
@@ -30,7 +31,8 @@ ALL_BIN = cat \
 	  pwd \
 	  base32 \
 	  mkdir \
-	  mv
+	  mv \
+	  cp
 
 ECHO = @$(shell which echo)
 
@@ -85,6 +87,9 @@ mkdir: src/mkdir.c check_bin_dir
 mv: src/mv.c check_bin_dir
 	$(CC) src/mv.c src/linked_list.c $(CFLAGS) -o $(OUT_DIR)/mv
 
+cp: src/cp.c check_bin_dir
+	$(CC) src/cp.c $(CFLAGS) -o $(OUT_DIR)/cp
+
 .PHONY: clean install help
 
 clean:
@@ -108,3 +113,4 @@ help:
 	$(ECHO) -e "\tbase32"
 	$(ECHO) -e "\tmkdir"
 	$(ECHO) -e "\tmv"
+	$(ECHO) -e "\tcp"
