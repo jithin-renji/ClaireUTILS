@@ -32,6 +32,8 @@ ALL_BIN = cat \
 	  mkdir \
 	  mv
 
+ECHO = @$(shell which echo)
+
 OUT_DIR = bin
 INSTALL_DIR = /usr/bin
 
@@ -91,12 +93,18 @@ clean:
 install: all
 	cp $(OUT_DIR)/* $(INSTALL_DIR)
 help:
-	@`which echo` -e "Targets:"
-	@`which echo` -e "\tcat"
-	@`which echo` -e "\tyes"
-	@`which echo` -e "\ttrue"
-	@`which echo` -e "\tfalse"
-	@`which echo` -e "\twc"
-	@`which echo` -e "\tunlink"
-	@`which echo` -e "\trm"
-	@`which echo` -e "\tls"
+	$(ECHO) -e "Targets:"
+	$(ECHO) -e "\tcat"
+	$(ECHO) -e "\tyes"
+	$(ECHO) -e "\ttrue"
+	$(ECHO) -e "\tfalse"
+	$(ECHO) -e "\twc"
+	$(ECHO) -e "\tunlink"
+	$(ECHO) -e "\trm"
+	$(ECHO) -e "\tls"
+	$(ECHO) -e "\ttouch"
+	$(ECHO) -e "\twhoami"
+	$(ECHO) -e "\tpwd"
+	$(ECHO) -e "\tbase32"
+	$(ECHO) -e "\tmkdir"
+	$(ECHO) -e "\tmv"
