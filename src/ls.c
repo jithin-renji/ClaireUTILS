@@ -105,8 +105,7 @@ int main (int argc, char **argv)
 void get_permissions(mode_t mode, char *out_str)
 {
         /* Check file type
-         * TODO: Add support for socket and symbolic
-         *       links too */
+         * TODO: Add support for sockets */
         if (S_ISLNK(mode)) {
                 strcpy(out_str, "l");
         } else if (S_ISDIR(mode)) {
@@ -357,7 +356,7 @@ void list (const char *dir_path, int flags)
                 }
 
                 if (CHKF_LONG(flags)) {
-                        printf("%s  %ld\t%s\t%s\t%s\t%s\t", permissions,
+                        printf("%s %ld\t%s\t%s\t%s\t%s ", permissions,
                                         links, usr_info->pw_name,
                                         grp_info->gr_name, fsize_str,
                                         mdate);
