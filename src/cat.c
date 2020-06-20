@@ -20,34 +20,96 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#include <unistd.h>
+#include <fcntl.h>
+#include <getopt.h>
+
+char progname[256] = "";
+
+struct option opts[] = {
+        {"help",        no_argument, 0, 'H'},
+        {"version",     no_argument, 0, 'V'},
+        {0,             0,           0,  0}
+};
+
+int cat (const char *fname, int flags);
+void help (void);
+void version (void);
 
 int main (int argc, char **argv)
 {
-        if (argc < 2) {
-                char ch = 0;
-                while ((ch = fgetc(stdin)) != EOF) {
-                        putc(ch, stdout);
-                }
-        } else {
-                char** fnames_ptr = argv + 1;
+        strcpy(progname, argv[0]);
 
-                while (*fnames_ptr != NULL) {
-                        FILE* fp = fopen(*fnames_ptr, "r");
+        int flags = 0;
+        int opt = 0;
+        while ((opt = getopt_long(argc, argv, "HV", opts, NULL)) != -1) {
+                switch (opt) {
+                case 'H':
+                        help();
+                        exit(EXIT_SUCCESS);
+                        break;
 
-                        if (fp == NULL) {
-                                perror(*fnames_ptr);
-                                exit(EXIT_FAILURE);
-                        }
-                        
-                        char ch = 0;
-                        while ((ch = fgetc(fp)) != EOF) {
-                                putc(ch, stdout);
-                        }
+                case 'V':
+                        version();
+                        exit(EXIT_SUCCESS);
+                        break;
 
-                        fnames_ptr++;
-                        fclose(fp);
+                default:
+                        fprintf(stderr,
+                                "Try '%s --help' for more information\n",
+                                progname);
+                        exit(EXIT_FAILURE);
                 }
         }
 
+        if (argv[optind] == NULL) {
+                cat("-", flags);
+        } else {
+                for (int i = 1; i < argc; i++) {
+                        cat(argv[i], flags);
+                }
+        }
         return 0;
+}
+
+int cat (const char *fname, int flags)
+{
+        int fd;
+        fd = strcmp(fname, "-") == 0 ? STDIN_FILENO : open(fname, O_RDONLY);
+
+        if (fd == -1) {
+                fprintf(stderr, "%s: '%s': ", progname, fname);
+                perror("");
+                return -1;
+        }
+
+        int ch = 0;
+        while (read(fd, &ch, 1) > 0) {
+                write(STDOUT_FILENO, &ch, 1);
+        }
+
+        return 0;
+}
+
+void help (void)
+{
+        printf("Usage: %s [FILENAME]...\n", progname);
+        printf("   or: %s OPTION\n\n", progname);
+
+        printf("Options:\n"
+               "\t-H, --help\tShow this help message and exit\n"
+               "\t-V, --version\tShow version information and exit\n");
+}
+
+void version (void)
+{
+        printf("%s (ClaireUTILS) v0.1\n", progname);
+
+        printf("Copyright (C) 2020 Jithin Renji\n"
+"License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\n"
+"This is free software: you are free to change and redistribute it.\n"
+"There is NO WARRANTY, to the extent permitted by law.\n\n"
+"Written by Jithin Renji.\n");
 }
