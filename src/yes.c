@@ -19,31 +19,81 @@
  * */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
+#include <getopt.h>
+
+char progname[256] = "";
+
+struct option opts[] = {
+        {"help",    no_argument, 0, 'H'},
+        {"version", no_argument, 0, 'V'},
+        {0,         0,           0,  0}
+};
+
+void help (void);
+void version (void);
 
 int main (int argc, char **argv)
 {
-        if (argc < 2) {
-                while (1)
-                        puts("y");
-        } else {
-                size_t size = 0;
-                for (int i = 1; i < argc; i++) {
-                        size += strlen(argv[i]);
-                }
+        strcpy(progname, argv[0]);
 
-                char **argv_ptr = argv + 1;
-                char str[size];
-                strcpy(str, "");
+        int opt = 0;
+        while ((opt = getopt_long(argc, argv, "HV", opts, NULL)) != -1) {
+                switch (opt) {
+                case 'H':
+                        help();
+                        exit(EXIT_SUCCESS);
+                        break;
 
-                while (*argv_ptr != NULL) {
-                        strcat(str, *argv_ptr);
-                        strcat(str, " ");
-                        ++argv_ptr;
+                case 'V':
+                        version();
+                        exit(EXIT_SUCCESS);
+                        break;
+
+                default:
+                        fprintf(stderr,
+                                "Try '%s --help' for more information\n",
+                                progname);
+                        exit(EXIT_FAILURE);
+                        break;
                 }
-                while (1)               
-                        printf("%s\n", str);
         }
 
+        if (argv[optind] == NULL) {
+                while (1) {
+                        puts("y");
+                }
+        } else {
+                while (1) {
+                        for (int i = 1; i < argc; i++) {
+                                printf("%s ", argv[i]);
+                        }
+
+                        fputc('\n', stdout);
+                }
+        }
         return 0;
+}
+
+void help (void)
+{
+        printf("Usage: %s [STRING]...\n", progname);
+        printf("   or: %s OPTION\n\n", progname);
+
+        printf("Options:\n"
+               "\t--help, -H\tShow this help message and exit\n"
+               "\t--version, -V\tShow version information and exit\n");
+}
+
+void version (void)
+{
+        printf("%s (ClaireUTILS) v0.1\n", progname);
+
+        printf("Copyright (C) 2020 Jithin Renji\n"
+"License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\n"
+"This is free software: you are free to change and redistribute it.\n"
+"There is NO WARRANTY, to the extent permitted by law.\n\n"
+"Written by Jithin Renji.\n");
 }
