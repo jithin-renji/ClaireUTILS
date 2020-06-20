@@ -46,6 +46,9 @@ struct option opts[] = {
 
 void base_name (char *out, char *in_path);
 int copy_file_to_file (char *in_file, char *out_file, int flags);
+int copy_files_into_dir (struct node *files, char *dir_name,
+                           int flags);
+
 void help (void);
 void version (void);
 
@@ -96,6 +99,18 @@ int main (int argc, char **argv)
          *                         or cp FILE  DIRECTORY */
         if (argc - optind == 2) {
                 copy_file_to_file(argv[optind], argv[optind + 1], flags);
+        } else { /* cp FILE... DIRECTORY */
+                char *dir_name = argv[argc - 1];
+                struct node *files = malloc(sizeof(struct node));
+
+                node_init(files);
+
+                for (int i = optind; i < argc - 1; i++) {
+                        list_append(files, argv[i]);
+                }
+
+                copy_files_into_dir(files, dir_name, flags);
+                list_destroy(files);
         }
 
         return 0;
@@ -120,7 +135,6 @@ void base_name (char *out, char *in_path)
 
 int copy_file_to_file (char *in_file, char *out_file, int flags)
 {
-
         struct stat in_statbuf;
         mode_t in_mode;
 
@@ -180,8 +194,48 @@ int copy_file_to_file (char *in_file, char *out_file, int flags)
                 write(out_fd, &ch, 1);
         }
 
+        if (CHKF_CP_VERBOSE(flags)) {
+                printf("Copied '%s' to '%s'\n", in_file, out_file);
+        }
+
         close(in_fd);
         close(out_fd);
+        return 0;
+}
+
+int copy_files_into_dir (struct node *files, char *dir_name, int flags)
+{
+        struct node *file = files;
+        while (file != NULL) {
+                struct stat stat_buf;
+                int stat_ret = stat(file->str, &stat_buf);
+                char out_dir[PATH_MAX];
+
+                strcpy(out_dir, dir_name);
+
+                if (stat_ret == -1) {
+                        fprintf(stderr, "%s: '%s': ", progname, file->str);
+                        perror("");
+
+                        return -1;
+                }
+
+                int fd = open(out_dir, O_RDONLY | O_DIRECTORY);
+                if (fd == -1) {
+                        fprintf(stderr, "%s: '%s': ", progname, file->str);
+                        perror("");
+
+                        return -1;
+                }
+
+                int copy_ret = copy_file_to_file(file->str, out_dir, flags);
+                if (copy_ret == -1) {
+                        return -1;
+                }
+
+                file = file->next;
+        }
+
         return 0;
 }
 
