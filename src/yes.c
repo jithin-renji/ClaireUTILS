@@ -83,8 +83,8 @@ void help (void)
         printf("   or: %s OPTION\n\n", progname);
 
         printf("Options:\n"
-               "\t--help, -H\tShow this help message and exit\n"
-               "\t--version, -V\tShow version information and exit\n");
+               "\t-H, --help\tShow this help message and exit\n"
+               "\t-V, --version\tShow version information and exit\n");
 }
 
 void version (void)
