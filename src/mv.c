@@ -44,6 +44,8 @@ struct option long_opts[] = {
         {0,             0,           0,  0}
 };
 
+
+void base_name (char *out, char *inpath);
 int move_files_into_dir (struct node *files_list, const char *dir_name,
                          int flags);
 void help (void);
@@ -123,8 +125,11 @@ int main (int argc, char **argv)
                 mode_t out_mode = out_stat_ret == -1 ? -1 : out_statbuf.st_mode;
 
                 if (S_ISDIR(out_mode)) {
+                        char in_file_basename[PATH_MAX];
+
                         strcat(out_file, "/");
-                        strcat(out_file, in_file);
+                        base_name(in_file_basename, in_file);
+                        strcat(out_file, in_file_basename);
                 }
 
                 int mv_ret = rename(in_file, out_file);
@@ -157,6 +162,23 @@ int main (int argc, char **argv)
         return 0;
 }
 
+void base_name (char *out, char *in_path)
+{
+        char *inpath_ptr = in_path;
+        char *inpath_name_ptr = in_path;
+
+        while (*inpath_ptr != '\0') {
+                if (*inpath_ptr == '/') {
+                        if (*(inpath_ptr + 1) != '\0')
+                                inpath_name_ptr = inpath_ptr + 1;
+                }
+
+                ++inpath_ptr;
+        }
+
+        strcpy(out, inpath_name_ptr);
+}
+
 int move_files_into_dir (struct node *files, const char *dir_name,
                          int flags)
 {
@@ -184,15 +206,20 @@ int move_files_into_dir (struct node *files, const char *dir_name,
         file = files;
         while (file != NULL) {
                 char renamed_fname[PATH_MAX];
+                char infile_basename[PATH_MAX];
+
                 strcpy(renamed_fname, dir_name);
                 strcat(renamed_fname, "/");
-                strcat(renamed_fname, file->str);
+
+                base_name(infile_basename, file->str);
+
+                strcat(renamed_fname, infile_basename);
 
                 int ret = rename(file->str, renamed_fname);
                 if (ret == -1) {
                         fprintf(stderr, "%s: Could not move `%s` to `%s`:",
                                 progname, file->str, renamed_fname);
-                        
+
                         perror("");
                         return -1;
                 }
