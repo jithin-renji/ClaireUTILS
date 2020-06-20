@@ -32,6 +32,7 @@
 #include <linux/limits.h>
 
 #include "cp.h"
+#include "linked_list.h"
 
 char progname[256] = "";
 
@@ -43,6 +44,7 @@ struct option opts[] = {
         {0,             0,           0,  0}
 };
 
+void base_name (char *out, char *in_path);
 int copy_file_to_file (char *in_file, char *out_file, int flags);
 void help (void);
 void version (void);
@@ -74,8 +76,9 @@ int main (int argc, char **argv)
                         break;
 
                 default:
-                        fprintf(stderr, "Try '%s --help' for more information\n",
-                                              progname);
+                        fprintf(stderr,
+                                "Try '%s --help' for more information\n",
+                                progname);
                         exit(EXIT_FAILURE);
                         break;
                 }
@@ -96,6 +99,23 @@ int main (int argc, char **argv)
         }
 
         return 0;
+}
+
+void base_name (char *out, char *in_path)
+{
+        char *inpath_ptr = in_path;
+        char *inpath_name_ptr = in_path;
+
+        while (*inpath_ptr != '\0') {
+                if (*inpath_ptr == '/') {
+                        if (*(inpath_ptr + 1) != '\0')
+                                inpath_name_ptr = inpath_ptr + 1;
+                }
+
+                ++inpath_ptr;
+        }
+
+        strcpy(out, inpath_name_ptr);
 }
 
 int copy_file_to_file (char *in_file, char *out_file, int flags)
@@ -135,8 +155,11 @@ int copy_file_to_file (char *in_file, char *out_file, int flags)
 
                 return -1;
         } else if (S_ISDIR(out_mode)) {
+                char in_file_basename[PATH_MAX];
+
                 strcat(out_file, "/");
-                strcat(out_file, in_file);
+                base_name(in_file_basename, in_file);
+                strcat(out_file, in_file_basename);
         }
 
         int in_fd = open(in_file, O_RDONLY);

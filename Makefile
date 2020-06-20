@@ -88,7 +88,7 @@ mv: src/mv.c check_bin_dir
 	$(CC) src/mv.c src/linked_list.c $(CFLAGS) -o $(OUT_DIR)/mv
 
 cp: src/cp.c check_bin_dir
-	$(CC) src/cp.c $(CFLAGS) -o $(OUT_DIR)/cp
+	$(CC) src/cp.c src/linked_list.c $(CFLAGS) -o $(OUT_DIR)/cp
 
 .PHONY: clean install help
 

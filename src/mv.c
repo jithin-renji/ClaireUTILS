@@ -44,7 +44,6 @@ struct option long_opts[] = {
         {0,             0,           0,  0}
 };
 
-
 void base_name (char *out, char *inpath);
 int move_files_into_dir (struct node *files_list, const char *dir_name,
                          int flags);
