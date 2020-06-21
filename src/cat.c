@@ -26,9 +26,12 @@
 #include <fcntl.h>
 #include <getopt.h>
 
+#include "cat.h"
+
 char progname[256] = "";
 
 struct option opts[] = {
+        {"show-ends",   no_argument, 0, 'E'},
         {"help",        no_argument, 0, 'H'},
         {"version",     no_argument, 0, 'V'},
         {0,             0,           0,  0}
@@ -44,8 +47,12 @@ int main (int argc, char **argv)
 
         int flags = 0;
         int opt = 0;
-        while ((opt = getopt_long(argc, argv, "HV", opts, NULL)) != -1) {
+        while ((opt = getopt_long(argc, argv, "EHV", opts, NULL)) != -1) {
                 switch (opt) {
+                case 'E':
+                        flags |= SHOW_ENDS;
+                        break;
+
                 case 'H':
                         help();
                         exit(EXIT_SUCCESS);
@@ -86,7 +93,11 @@ int cat (const char *fname, int flags)
         }
 
         int ch = 0;
+        const char *out_str = "$";
         while (read(fd, &ch, 1) > 0) {
+                if (CHKF_SHOW_ENDS(flags) && ch == '\n')
+                        write(STDOUT_FILENO, out_str, strlen(out_str));
+
                 write(STDOUT_FILENO, &ch, 1);
         }
 
