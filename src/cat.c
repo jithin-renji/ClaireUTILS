@@ -74,7 +74,7 @@ int main (int argc, char **argv)
         if (argv[optind] == NULL) {
                 cat("-", flags);
         } else {
-                for (int i = 1; i < argc; i++) {
+                for (int i = optind; i < argc; i++) {
                         cat(argv[i], flags);
                 }
         }
