@@ -1,3 +1,6 @@
+# This Makefile is badly written at best
+# TODO: Rewrite this Makefile to be more general
+
 CC = gcc
 CFLAGS = -Wall -g
 
@@ -16,7 +19,8 @@ SRC = src/cat.c \
       src/base32.c \
       src/mkdir.c \
       src/mv.c \
-      src/cp.c
+      src/cp.c \
+      src/uname.c
 
 ALL_BIN = cat \
 	  true \
@@ -32,7 +36,8 @@ ALL_BIN = cat \
 	  base32 \
 	  mkdir \
 	  mv \
-	  cp
+	  cp \
+          uname
 
 ECHO = @$(shell which echo)
 
@@ -90,6 +95,8 @@ mv: src/mv.c check_bin_dir
 cp: src/cp.c check_bin_dir
 	$(CC) src/cp.c src/linked_list.c $(CFLAGS) -o $(OUT_DIR)/cp
 
+uname: src/uname.c check_bin_dir
+	$(CC) src/uname.c $(CFLAGS) -o $(OUT_DIR)/uname
 .PHONY: clean install help
 
 clean:
