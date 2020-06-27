@@ -29,7 +29,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <linux/limits.h>
+#ifdef linux
+#  include <linux/limits.h>
+#else
+#  include <sys/syslimits.h>
+#endif
 
 #include "mv.h"
 #include "linked_list.h"
