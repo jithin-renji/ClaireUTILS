@@ -1,7 +1,7 @@
 # This Makefile is badly written at best
 # TODO: Rewrite this Makefile to be more general
 
-CC = gcc
+CC = cc
 CFLAGS = -Wall -g
 
 SRC = src/cat.c \
