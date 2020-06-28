@@ -25,7 +25,11 @@
 #include <unistd.h>
 #include <getopt.h>
 
-#include <linux/limits.h>
+#ifdef linux
+#  include <linux/limits.h>
+#else
+#  include <sys/syslimits.h>
+#endif
 
 char progname[256] = "";
 

@@ -42,7 +42,7 @@ ALL_BIN = cat \
 ECHO = @$(shell which echo)
 
 OUT_DIR = bin
-INSTALL_DIR = /usr/bin
+INSTALL_DIR = /bin
 
 all: $(SRC) check_bin_dir $(ALL_BIN)
 	@echo "Output dir: $(OUT_DIR)/"

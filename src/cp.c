@@ -29,7 +29,11 @@
 #include <fcntl.h>
 #include <getopt.h>
 
-#include <linux/limits.h>
+#ifdef linux
+#  include <linux/limits.h>
+#else
+#  include <sys/syslimits.h>
+#endif
 
 #include "cp.h"
 #include "linked_list.h"
