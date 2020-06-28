@@ -1,11 +1,12 @@
 # ClaireUTILS
 
-An **extremely** minimal set of core utilities for Linux systems.
+An **extremely** minimal set of core utilities for Linux/UNIX like systems.
+(works in Linux and FreeBSD at the moment)
 
 ### Requirements
 
-1. GCC (any recent version should work; preferably v9.3.0)
-2. GNU Make (same as above; preferably v4.2.1)
+1. GCC/Clang (any recent version should work)
+2. GNU make/Berkeley make (same as above)
 
 ### Build
 
@@ -18,5 +19,5 @@ ClaireUTILS is still in its early stages of development. It is prone to
 unnoticed bugs and such.
 
 ### License
-ClaireUTILS is licenced under the GNU GPLv3. See "COPYING" for more
+ClaireUTILS is licenced under the GNU GPLv3. See "LICENSE" for more
 information.
