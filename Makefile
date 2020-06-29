@@ -19,8 +19,8 @@ SRC = src/cat.c \
       src/base32.c \
       src/mkdir.c \
       src/mv.c \
-      src/cp.c \
-      src/uname.c
+      src/uname.c \
+      src/id.c
 
 ALL_BIN = cat \
 	  true \
@@ -36,8 +36,8 @@ ALL_BIN = cat \
 	  base32 \
 	  mkdir \
 	  mv \
-	  cp \
-          uname
+          uname \
+	  id
 
 ECHO = @$(shell which echo)
 
@@ -92,17 +92,20 @@ mkdir: src/mkdir.c check_bin_dir
 mv: src/mv.c check_bin_dir
 	$(CC) src/mv.c src/linked_list.c $(CFLAGS) -o $(OUT_DIR)/mv
 
-cp: src/cp.c check_bin_dir
-	$(CC) src/cp.c src/linked_list.c $(CFLAGS) -o $(OUT_DIR)/cp
+#cp: src/cp.c check_bin_dir
+#	$(CC) src/cp.c src/linked_list.c $(CFLAGS) -o $(OUT_DIR)/cp
 
 uname: src/uname.c check_bin_dir
 	$(CC) src/uname.c $(CFLAGS) -o $(OUT_DIR)/uname
+
+id: src/id.c check_bin_dir
+	$(CC) src/id.c $(CFLAGS) -o $(OUT_DIR)/id
 .PHONY: clean install help
 
 clean:
 	rm -rf $(OUT_DIR)/
 
-install: all
+install:
 	cp $(OUT_DIR)/* $(INSTALL_DIR)
 help:
 	$(ECHO) -e "Targets:"

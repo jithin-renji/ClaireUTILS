@@ -30,8 +30,8 @@
 char progname[256] = "";
 
 struct option long_opts[] = {
-        {"help",    no_argument, 0, 'h'},
-        {"version", no_argument, 0, 'v'},
+        {"help",    no_argument, 0, 'H'},
+        {"version", no_argument, 0, 'V'},
         {0,         0,           0,  0 }
 };
 
@@ -43,14 +43,14 @@ int main (int argc, char **argv)
         strcpy(progname, argv[0]);
 
         int opt = 0;
-        while ((opt = getopt_long(argc, argv, "hv", long_opts, NULL)) != -1) {
+        while ((opt = getopt_long(argc, argv, "HV", long_opts, NULL)) != -1) {
                 switch (opt) {
-                case 'h':
+                case 'H':
                         help();
                         exit(EXIT_SUCCESS);
                         break;
 
-                case 'v':
+                case 'V':
                         version();
                         exit(EXIT_SUCCESS);
                         break;
@@ -81,11 +81,11 @@ int main (int argc, char **argv)
 
 void help (void)
 {
-        printf("Usage: %s OPTION\n\n", progname);
+        printf("Usage: %s [OPTION]\n\n", progname);
 
         printf("Options:\n"
-               "\t-h, --help\tShow this help message and exit\n"
-               "\t-v, --version\tShow version information and exit\n");
+               "\t-H, --help\tShow this help message and exit\n"
+               "\t-V, --version\tShow version information and exit\n");
 }
 
 void version (void)
