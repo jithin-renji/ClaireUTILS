@@ -1,12 +1,12 @@
 # ClaireUTILS
 
-An **extremely** minimal set of core utilities for Linux/UNIX like systems.
-(works in Linux and FreeBSD at the moment)
+An **extremely** minimal set of core utilities for UNIX-like systems.
+(runs on Linux and FreeBSD at the moment)
 
 ### Requirements
 
-1. GCC/Clang (any recent version should work)
-2. GNU make/Berkeley make (same as above)
+1. GCC or Clang (any recent version should work)
+2. GNU make or Berkeley make (same as above)
 
 ### Build
 
