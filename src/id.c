@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -42,7 +43,7 @@ struct option long_opts[] = {
         {0,         0,           0,  0 }
 };
 
-int show_id (int flags);
+int show_id (int flags, const char *name);
 void help (void);
 void version (void);
 
@@ -123,31 +124,69 @@ int main (int argc, char **argv)
                 exit(EXIT_FAILURE);
         }
 
-        show_id(flags);
+        if (argc - optind > 1) {
+                fprintf(stderr,
+                        "%s: Extra argument '%s'\n"
+                        "Try '%s --help' for more information\n",
+                        progname, argv[optind], progname);
+                return 1;
+        }
 
-        return 0;
+        return show_id(flags, argv[optind]);
 }
 
-int show_id (int flags)
+int show_id (int flags, const char *name)
 {
-        uid_t ruid = getuid();
-        uid_t euid = geteuid();
+        uid_t ruid;
+        uid_t euid;
+        gid_t egid;
 
-        struct passwd *pwd = getpwuid(ruid);
+        struct passwd *pwd = NULL;
+        struct group  *grp = NULL;
 
-        gid_t egid = getegid();
-        struct group *grp = getgrgid(egid);
+        if (name == NULL) {
+                ruid = getuid();
+                euid = geteuid();
+                egid = getegid();
+
+                pwd = getpwuid(ruid);
+                if (pwd == NULL) {
+                        perror(progname);
+                        return 1;
+                }
+        } else {
+                pwd = getpwnam(name);
+                if (pwd == NULL) {
+                        if (errno != 0)
+                                perror(progname);
+                        else
+                                fprintf(stderr,
+                                        "%s: Username '%s' not found\n",
+                                        progname, name);
+                        return 1;
+                }
+
+                ruid = pwd->pw_uid;
+                egid = pwd->pw_gid;
+        }
+
+        grp = getgrgid(egid);
+        if (grp == NULL) {
+                perror(progname);
+                return 1;
+        }
 
         gid_t groups[1024];
         int ngroups = 1024;
         int ret = getgrouplist(pwd->pw_name, egid, groups, &ngroups);
 
+        /* Handle this better? */
         if (ret == -1) {
                 fprintf(stderr,
                         "%s: User is part of too many groups!\n",
                         progname);
 
-                return -1;
+                return 1;
         }
 
         if (flags == 0) {
