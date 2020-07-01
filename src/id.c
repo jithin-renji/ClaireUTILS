@@ -26,6 +26,7 @@
 #include <sys/types.h>
 #include <getopt.h>
 #include <pwd.h>
+#include <grp.h>
 
 #include "id.h"
 
@@ -128,11 +129,40 @@ int show_id (int flags)
         uid_t ruid = getuid();
         uid_t euid = geteuid();
 
+        struct passwd *pwd = getpwuid(ruid);
+
         gid_t egid = getegid();
+        struct group *grp = getgrgid(egid);
+
+        gid_t groups[1024];
+        int ngroups = 1024;
+        int ret = getgrouplist(pwd->pw_name, egid, groups, &ngroups);
+
+        if (ret == -1) {
+                fprintf(stderr,
+                        "%s: User is part of too many groups!\n",
+                        progname);
+
+                return -1;
+        }
 
         if (flags == 0) {
-                printf("uid=%u gid=%u\n", ruid, egid);
+                printf("uid=%u(%s) gid=%u(%s) ",
+                       ruid, pwd->pw_name, egid, grp->gr_name);
+
+                printf("groups=");
+                struct group *sgrp = NULL;
+                for (int i = 0; i < ngroups; i++) {
+                        sgrp = getgrgid(groups[i]);
+                        printf("%u(%s)", groups[i],  sgrp->gr_name);
+                        if (i != ngroups - 1) {
+                                printf(",");
+                        }
+                }
+
+                puts("");
         }
+
         return 0;
 }
 
