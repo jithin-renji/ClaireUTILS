@@ -123,7 +123,7 @@ int main (int argc, char **argv)
 
         return 0;
 }
-/* uid=0(root) gid=0(wheel) groups=0(wheel),5(operator) */
+
 int show_id (int flags)
 {
         uid_t ruid = getuid();
