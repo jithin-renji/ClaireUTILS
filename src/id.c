@@ -161,6 +161,31 @@ int show_id (int flags)
                 }
 
                 puts("");
+        } else {
+                if (CHKF_SHOW_UID(flags)) {
+                        if (CHKF_SHOW_NAME(flags))
+                                printf("%s\n", pwd->pw_name);
+                        else
+                                printf("%u\n", euid);
+                } else if (CHKF_SHOW_GID(flags)) {
+                        if (CHKF_SHOW_NAME(flags))
+                                printf("%s\n", grp->gr_name);
+                        else
+                                printf("%u\n", egid);
+                } else if (CHKF_SHOW_GIDS(flags)) {
+                        for (int i = 0; i < ngroups; i++) {
+                                struct group *sgrp = getgrgid(groups[i]);
+                                if (CHKF_SHOW_NAME(flags))
+                                        printf("%s", sgrp->gr_name);
+                                else
+                                        printf("%u", groups[i]);
+
+                                if (i != ngroups - 1)
+                                        printf(" ");
+                        }
+
+                        puts("");
+                }
         }
 
         return 0;
