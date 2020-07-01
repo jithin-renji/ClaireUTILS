@@ -33,6 +33,10 @@
 char progname[256] = "";
 
 struct option long_opts[] = {
+        {"user",    no_argument, 0, 'u'},
+        {"group",   no_argument, 0, 'g'},
+        {"groups",  no_argument, 0, 'G'},
+        {"name",    no_argument, 0, 'n'},
         {"help",    no_argument, 0, 'H'},
         {"version", no_argument, 0, 'V'},
         {0,         0,           0,  0 }
@@ -193,10 +197,14 @@ int show_id (int flags)
 
 void help (void)
 {
-        printf("Usage: %s [OPTION]\n\n", progname);
+        printf("Usage: %s [OPTION] [USERNAME]\n\n", progname);
 
         printf("Options:\n"
                "\t-a\t\tIgnored for compatability with other implementations\n"
+               "\t-u, --user\tPrint effective user ID as a number\n"
+               "\t-g, --group\tPrint the effective group ID as a number\n"
+               "\t-G, --groups\tPrint all group IDs as numbers\n"
+               "\t-n, --name\tPrint name(s) instead of number(s) for -ugG\n"
                "\t-H, --help\tShow this help message and exit\n"
                "\t-V, --version\tShow version information and exit\n");
 }
